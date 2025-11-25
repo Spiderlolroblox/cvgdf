@@ -4,6 +4,7 @@ const PROJECT_ID = "keysystem-d0b86-8df89";
 const API_KEY = "AIzaSyD7KlxN05OoSCGHwjXhiiYyKF5bOXianLY";
 
 function extractValue(field: any): any {
+  if (!field) return null;
   if (field.stringValue !== undefined) return field.stringValue;
   if (field.integerValue !== undefined) return parseInt(field.integerValue);
   if (field.booleanValue !== undefined) return field.booleanValue;
@@ -75,9 +76,15 @@ export async function handleActivateLicense(req: Request, res: Response) {
     const licenseDoc = documents[0];
     const licenseData = licenseDoc.fields;
 
+    if (!licenseData) {
+      return res.status(400).json({
+        message: "Clé de licence invalide",
+      });
+    }
+
     // Check if license is active
-    const isActive = extractValue(licenseData.isActive) !== false;
-    if (!isActive) {
+    const isActive = extractValue(licenseData.isActive);
+    if (isActive === false) {
       return res.status(400).json({
         message: "Clé de licence désactivée",
       });
@@ -87,6 +94,8 @@ export async function handleActivateLicense(req: Request, res: Response) {
     const planName = extractValue(licenseData.planName) || "Classic";
     const messageLimit = extractValue(licenseData.messageLimit) || 100;
     const licenseId = licenseDoc.name.split("/").pop();
+
+    console.log("License activated:", { planName, messageLimit, licenseId });
 
     // Update user data in Firestore
     const userUpdateQuery = {
