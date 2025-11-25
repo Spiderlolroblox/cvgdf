@@ -10,7 +10,7 @@ import { Menu, Loader2 } from "lucide-react";
 import { MessagesService } from "@/lib/messages";
 
 export default function Index() {
-  const { loading, userBan, maintenanceNotice, user } = useAuth();
+  const { loading, userBan, maintenanceNotice, user, userData } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [acknowledgedMaintenance, setAcknowledgedMaintenance] = useState(false);
   const [activeConversationId, setActiveConversationId] = useState<string>();
