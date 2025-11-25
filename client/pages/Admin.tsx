@@ -452,10 +452,22 @@ export default function Admin() {
                   }
                   className="flex-1 bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white"
                 >
-                  <option value="Free">Free</option>
-                  <option value="Classic">Classic</option>
-                  <option value="Pro">Pro</option>
+                  <option value="Free">Free (10 messages)</option>
+                  <option value="Classic">Classic (500 messages/jour)</option>
+                  <option value="Pro">Pro (1000 messages/jour)</option>
                 </select>
+
+                <input
+                  type="number"
+                  min="1"
+                  max="365"
+                  value={validityDaysForGeneration}
+                  onChange={(e) =>
+                    setValidityDaysForGeneration(parseInt(e.target.value) || 1)
+                  }
+                  className="w-24 bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white"
+                  placeholder="Jours"
+                />
 
                 <button
                   onClick={handleGenerateLicense}
