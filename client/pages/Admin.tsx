@@ -96,6 +96,24 @@ export default function Admin() {
     }
   };
 
+  const loadBans = async () => {
+    try {
+      const allBans = await SystemNoticesService.getAllBans();
+      setBans(allBans);
+    } catch (error) {
+      console.error("Erreur lors du chargement des bans", error);
+    }
+  };
+
+  const loadMaintenance = async () => {
+    try {
+      const notices = await SystemNoticesService.getAllMaintenanceNotices();
+      setMaintenanceNotices(notices);
+    } catch (error) {
+      console.error("Erreur lors du chargement de la maintenance", error);
+    }
+  };
+
   const loadUsers = async () => {
     try {
       const usersRef = collection(db, "users");
