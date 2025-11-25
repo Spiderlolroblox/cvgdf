@@ -61,6 +61,9 @@ function AppRoutes() {
         e.preventDefault();
         if (userData?.isAdmin) {
           navigate("/admin");
+          toast.success("Accès au panneau admin");
+        } else {
+          toast.error("Vous n'êtes pas administrateur");
         }
       }
     };
