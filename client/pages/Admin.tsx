@@ -233,7 +233,7 @@ export default function Admin() {
         banDuration || undefined,
       );
 
-      toast.success("Utilisateur banni avec succès");
+      toast.success("Utilisateur banni avec succ��s");
       setUserEmailToBan("");
       setBanReason("");
       setBanDuration(null);
@@ -360,7 +360,7 @@ export default function Admin() {
             >
               <div className="flex items-center gap-2">
                 <Key size={18} />
-                Clés de licence
+                Cl��s de licence
               </div>
             </button>
             <button
@@ -643,18 +643,18 @@ export default function Admin() {
                 </div>
               </div>
 
-              {/* System Prompt and API Key */}
+              {/* System Prompt */}
               <div className="bg-white/5 border border-white/10 rounded-xl p-6">
                 <h3 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
                   <Settings size={20} />
-                  Configuration avancée
+                  Prompt système
                 </h3>
 
                 <div className="space-y-5">
                   {/* System Prompt */}
                   <div>
                     <label className="block text-sm font-medium text-foreground/70 mb-2">
-                      Prompt système
+                      Instructions de l'IA
                     </label>
                     <textarea
                       value={aiConfig?.systemPrompt || ""}
@@ -665,32 +665,13 @@ export default function Admin() {
                             : null,
                         )
                       }
-                      rows={5}
+                      rows={7}
                       className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-white/40 resize-none"
                       placeholder="Entrez les instructions pour l'IA..."
                     />
-                  </div>
-
-                  {/* API Key */}
-                  <div>
-                    <label className="block text-sm font-medium text-foreground/70 mb-2">
-                      Clé API OpenRouter
-                    </label>
-                    <input
-                      type="password"
-                      value={aiConfig?.apiKey || ""}
-                      onChange={(e) =>
-                        setAiConfig(
-                          aiConfig
-                            ? { ...aiConfig, apiKey: e.target.value }
-                            : null,
-                        )
-                      }
-                      className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-white/40"
-                      placeholder="sk-or-..."
-                    />
                     <p className="text-xs text-foreground/50 mt-2">
-                      Votre clé API restera sécurisée
+                      Les instructions définissent le comportement et le style
+                      de l'IA
                     </p>
                   </div>
                 </div>

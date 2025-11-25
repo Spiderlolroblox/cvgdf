@@ -6,7 +6,6 @@ export interface AIConfig {
   systemPrompt: string;
   temperature: number;
   maxTokens: number;
-  apiKey: string;
 }
 
 const DEFAULT_CONFIG: AIConfig = {
@@ -14,7 +13,6 @@ const DEFAULT_CONFIG: AIConfig = {
   systemPrompt: "Tu es un assistant utile et amical. Réponds en français.",
   temperature: 0.7,
   maxTokens: 2048,
-  apiKey: "", // API key is now handled by backend
 };
 
 export class AIService {
@@ -49,7 +47,6 @@ export class AIService {
     const config = await this.getConfig();
 
     try {
-      // Call backend endpoint instead of directly calling OpenRouter
       const response = await fetch("/api/ai/chat", {
         method: "POST",
         headers: {
@@ -65,36 +62,33 @@ export class AIService {
         }),
       });
 
-      // Check status before reading body
-      if (!response.ok) {
-        const contentType = response.headers.get("content-type");
-        let errorMessage = `API error: ${response.status}`;
-
-        if (contentType && contentType.includes("application/json")) {
-          try {
-            const errorData = await response.json();
-            errorMessage = errorData.error || errorMessage;
-          } catch (parseError) {
-            console.error("Failed to parse error response:", parseError);
-          }
-        }
-
-        throw new Error(errorMessage);
+      // Try to parse response body as text first, then JSON
+      let responseText: string;
+      try {
+        responseText = await response.text();
+      } catch (error) {
+        console.error("Failed to read response:", error);
+        throw new Error("Erreur serveur: impossible de lire la réponse");
       }
 
-      // Only read body if status is ok
-      const data = await response.json();
-      return data.content || "Pas de réponse";
-    } catch (error) {
-      if (
-        error instanceof SyntaxError &&
-        error.message.includes("body stream")
-      ) {
+      let data: any;
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error("Failed to parse response JSON:", parseError);
+        console.error("Response was:", responseText.substring(0, 500));
         throw new Error(
-          "Erreur serveur: réponse invalide. Veuillez réessayer.",
+          `Erreur serveur: réponse invalide (${responseText.substring(0, 50)}...)`,
         );
       }
 
+      if (!response.ok) {
+        const errorMessage = data?.error || `API error: ${response.status}`;
+        throw new Error(errorMessage);
+      }
+
+      return data.content || "Pas de réponse";
+    } catch (error) {
       throw error instanceof Error
         ? error
         : new Error("Erreur lors de la requête IA");
