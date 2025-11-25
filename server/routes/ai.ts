@@ -31,31 +31,7 @@ export const handleAIChat: RequestHandler = async (req, res) => {
     systemPrompt,
   } = req.body as AIRequest;
 
-  // Try to get API key from Firebase first, fallback to env variable
-  let apiKey = process.env.OPENROUTER_API_KEY;
-
-  try {
-    const firestoreResponse = await fetch(
-      `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents/settings/ai?key=${FIRESTORE_API_KEY}`,
-      {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-      },
-    );
-
-    if (firestoreResponse.ok) {
-      const firestoreData = await firestoreResponse.json();
-      const apiKeyField = firestoreData.fields?.apiKey;
-      if (apiKeyField) {
-        apiKey = extractValue(apiKeyField);
-      }
-    }
-  } catch (error) {
-    console.error(
-      "Failed to fetch API key from Firebase, using env variable:",
-      error,
-    );
-  }
+  const apiKey = process.env.OPENROUTER_API_KEY;
 
   if (!apiKey) {
     console.error("OPENROUTER_API_KEY not configured");
