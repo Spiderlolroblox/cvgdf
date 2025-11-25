@@ -30,6 +30,9 @@ export default function Index() {
       }
     } catch (error) {
       console.error("Error loading first conversation:", error);
+      if (error instanceof Error) {
+        console.error("Error message:", error.message);
+      }
     }
   };
 
