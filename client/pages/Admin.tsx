@@ -36,15 +36,17 @@ import { AIService, AIConfig } from "@/lib/ai";
 export default function Admin() {
   const { userData } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<"users" | "licenses">("users");
+  const [activeTab, setActiveTab] = useState<"users" | "licenses" | "ai">("users");
   const [users, setUsers] = useState<UserData[]>([]);
   const [licenses, setLicenses] = useState<LicenseKey[]>([]);
+  const [aiConfig, setAiConfig] = useState<AIConfig | null>(null);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editData, setEditData] = useState<Partial<UserData>>({});
   const [generatingLicense, setGeneratingLicense] = useState(false);
   const [selectedPlanForGeneration, setSelectedPlanForGeneration] =
     useState<PlanType>("Classic");
+  const [savingAiConfig, setSavingAiConfig] = useState(false);
 
   const planLimits: Record<PlanType, number> = {
     Free: 10,
