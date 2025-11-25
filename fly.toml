@@ -1,9 +1,9 @@
-# fly.toml app configuration file generated for vania-france on 2025-11-25T22:36:21Z
+# fly.toml app configuration file generated for cvgdf on 2025-11-25T22:44:34Z
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'vania-france'
+app = 'cvgdf'
 primary_region = 'cdg'
 
 [build]
