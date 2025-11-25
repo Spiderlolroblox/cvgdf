@@ -82,20 +82,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           if (userDocSnap.exists()) {
             const userData = userDocSnap.data() as UserData;
 
-            // Check if we need to reset messages for daily limit
-            if (userData.licenseKey && userData.lastMessageReset && userData.plan !== "Free") {
-              const now = Date.now();
-              const lastResetDate = new Date(userData.lastMessageReset).toDateString();
-              const todayDate = new Date(now).toDateString();
-
-              if (lastResetDate !== todayDate && userData.licenseExpiresAt && userData.licenseExpiresAt > now) {
-                // Reset messages for the new day
-                await updateDoc(userDocRef, {
-                  messagesUsed: 0,
-                  lastMessageReset: now,
+            // Trigger daily reset check on server
+            if (userData.licenseKey && userData.lastMessageReset) {
+              try {
+                await fetch("/api/daily-reset", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ userId: authUser.uid }),
                 });
-                userData.messagesUsed = 0;
-                userData.lastMessageReset = now;
+              } catch (error) {
+                console.error("Error checking daily reset:", error);
               }
             }
 
@@ -107,7 +103,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 messagesLimit: 10,
                 messagesUsed: 0,
                 licenseKey: "",
-                licenseExpiresAt: null,
+                licenseExpiresAt: undefined,
               });
               userData.plan = "Free";
               userData.messagesLimit = 10;
