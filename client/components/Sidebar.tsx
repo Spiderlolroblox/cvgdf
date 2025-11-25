@@ -142,9 +142,16 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
                 {userInitial}
               </div>
               <div>
-                <p className="text-sm font-semibold text-foreground">
-                  {loading ? "..." : userData?.displayName || "Utilisateur"}
-                </p>
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-semibold text-foreground">
+                    {loading ? "..." : userData?.displayName || "Utilisateur"}
+                  </p>
+                  {userData?.isAdmin && (
+                    <span className="px-2 py-0.5 text-xs font-bold bg-white/20 border border-white/40 rounded text-white">
+                      Admin
+                    </span>
+                  )}
+                </div>
                 <p className="text-xs text-white/50 font-medium">
                   {loading ? "..." : userData?.plan || "Free"}
                 </p>
