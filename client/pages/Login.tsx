@@ -4,6 +4,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { Mail, Lock } from "lucide-react";
 import { toast } from "sonner";
+import { IPService } from "@/lib/ip-service";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -16,7 +17,36 @@ export default function Login() {
     setLoading(true);
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      // Get user's IP address
+      const userIP = await IPService.getUserIP();
+
+      // Check IP ban
+      const ipBan = await IPService.checkIPBan(userIP);
+      if (ipBan) {
+        toast.error(
+          "Votre adresse IP est bannie: " +
+            ipBan.reason +
+            (ipBan.expiresAt
+              ? " (Expire le " +
+                ipBan.expiresAt.toDate().toLocaleDateString() +
+                ")"
+              : " (Permanent)"),
+        );
+        setLoading(false);
+        return;
+      }
+
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password,
+      );
+
+      // Record or update user IP
+      if (userCredential.user.uid) {
+        await IPService.updateUserIPLogin(userCredential.user.uid, userIP);
+      }
+
       toast.success("Connecté avec succès!");
       navigate("/");
     } catch (error) {
@@ -40,7 +70,7 @@ export default function Login() {
         {/* Header */}
         <div className="text-center mb-8 animate-fadeIn">
           <h1 className="text-3xl font-bold text-white mb-2">Bienvenue</h1>
-          <p className="text-foreground/60">Connectez-vous à votre compte</p>
+          <p className="text-foreground/60">Connectez-vous �� votre compte</p>
         </div>
 
         {/* Form */}

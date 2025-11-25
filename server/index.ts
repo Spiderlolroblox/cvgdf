@@ -2,6 +2,7 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { handleDemo } from "./routes/demo";
+import { handleGetIP, handleCheckVPN } from "./routes/ip-detection";
 
 export function createServer() {
   const app = express();
@@ -18,6 +19,10 @@ export function createServer() {
   });
 
   app.get("/api/demo", handleDemo);
+
+  // IP detection routes
+  app.get("/api/get-ip", handleGetIP);
+  app.post("/api/check-vpn", handleCheckVPN);
 
   return app;
 }

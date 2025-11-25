@@ -4,8 +4,9 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import { PlanType, UserData } from "@/contexts/AuthContext";
-import { Mail, Lock, UserPlus, Key } from "lucide-react";
+import { Mail, Lock, UserPlus, Key, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
+import { IPService } from "@/lib/ip-service";
 
 export default function Register() {
   const [email, setEmail] = useState("");
@@ -52,6 +53,35 @@ export default function Register() {
     setLoading(true);
 
     try {
+      // Get user's IP address
+      const userIP = await IPService.getUserIP();
+
+      // Check IP ban
+      const ipBan = await IPService.checkIPBan(userIP);
+      if (ipBan) {
+        toast.error(
+          "Votre adresse IP est bannie: " +
+            ipBan.reason +
+            (ipBan.expiresAt
+              ? " (Expire le " +
+                ipBan.expiresAt.toDate().toLocaleDateString() +
+                ")"
+              : " (Permanent)"),
+        );
+        setLoading(false);
+        return;
+      }
+
+      // Check account limit per IP (max 1 account)
+      const ipCheck = await IPService.checkIPLimit(userIP, 1);
+      if (ipCheck.isLimitExceeded) {
+        toast.error(
+          "Vous avez atteint le nombre maximal de comptes autorisés depuis votre adresse IP",
+        );
+        setLoading(false);
+        return;
+      }
+
       let planToUse: PlanType = "Free";
 
       if (licenseKey.trim()) {
@@ -94,6 +124,9 @@ export default function Register() {
       };
 
       await setDoc(doc(db, "users", user.uid), userData);
+
+      // Record user IP
+      await IPService.recordUserIP(user.uid, user.email || "", userIP);
 
       toast.success("Compte créé avec succès!");
       navigate("/");

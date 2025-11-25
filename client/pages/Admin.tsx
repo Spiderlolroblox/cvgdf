@@ -25,6 +25,7 @@ import {
   Shield,
   AlertCircle,
   Clock,
+  BarChart3,
 } from "lucide-react";
 import { toast } from "sonner";
 import { UserData, PlanType } from "@/contexts/AuthContext";
@@ -40,6 +41,8 @@ import {
   UserBan,
   MaintenanceNotice,
 } from "@/lib/system-notices";
+import AdminUsersList from "@/components/AdminUsersList";
+import AdminBanManagement from "@/components/AdminBanManagement";
 
 export default function Admin() {
   const { userData } = useAuth();
@@ -72,6 +75,7 @@ export default function Admin() {
   >("warning");
   const [savingBan, setSavingBan] = useState(false);
   const [savingMaintenance, setSavingMaintenance] = useState(false);
+  const [actionType, setActionType] = useState<"ban" | "warn">("ban");
 
   const planLimits: Record<PlanType, number> = {
     Free: 10,
@@ -404,208 +408,17 @@ export default function Admin() {
       {/* Content */}
       <div className="max-w-7xl mx-auto px-6 py-8">
         {activeTab === "users" && (
-          <>
-            {/* Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <div className="p-6 bg-white/5 border border-white/10 rounded-xl">
-                <div className="flex items-center gap-3 mb-2">
-                  <Users size={20} className="text-white/60" />
-                  <span className="text-foreground/60 text-sm">
-                    Utilisateurs Total
-                  </span>
-                </div>
-                <p className="text-3xl font-bold text-white">
-                  {users.length || 0}
-                </p>
-              </div>
-
-              <div className="p-6 bg-white/5 border border-white/10 rounded-xl">
-                <div className="flex items-center gap-3 mb-2">
-                  <Settings size={20} className="text-white/60" />
-                  <span className="text-foreground/60 text-sm">
-                    Plans Premium
-                  </span>
-                </div>
-                <p className="text-3xl font-bold text-white">
-                  {users.filter((u) => u.plan !== "Free").length || 0}
-                </p>
-              </div>
-
-              <div className="p-6 bg-white/5 border border-white/10 rounded-xl">
-                <div className="flex items-center gap-3 mb-2">
-                  <Users size={20} className="text-white/60" />
-                  <span className="text-foreground/60 text-sm">
-                    Messages Utilisés
-                  </span>
-                </div>
-                <p className="text-3xl font-bold text-white">
-                  {users.reduce((sum, u) => sum + (u.messagesUsed || 0), 0)}
-                </p>
-              </div>
-            </div>
-
-            {/* Users Table */}
-            <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden">
-              <div className="p-6 border-b border-white/10">
-                <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-                  <Users size={20} />
-                  Gestion des Utilisateurs
-                </h2>
-              </div>
-
-              {loading ? (
-                <div className="p-8 text-center">
-                  <p className="text-foreground/60">
-                    Chargement des utilisateurs...
-                  </p>
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead className="border-b border-white/10 bg-white/[0.02]">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-sm font-semibold text-foreground/70">
-                          Email
-                        </th>
-                        <th className="px-6 py-3 text-left text-sm font-semibold text-foreground/70">
-                          Plan
-                        </th>
-                        <th className="px-6 py-3 text-left text-sm font-semibold text-foreground/70">
-                          Messages
-                        </th>
-                        <th className="px-6 py-3 text-left text-sm font-semibold text-foreground/70">
-                          Admin
-                        </th>
-                        <th className="px-6 py-3 text-left text-sm font-semibold text-foreground/70">
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {users
-                        .filter((user) => user && user.uid)
-                        .map((user) => (
-                          <tr
-                            key={`user-${user.uid}`}
-                            className="border-b border-white/10 hover:bg-white/5 transition-colors"
-                          >
-                            <td className="px-6 py-4">
-                              <span className="text-white">{user.email}</span>
-                            </td>
-                            <td className="px-6 py-4">
-                              {editingId === user.uid ? (
-                                <select
-                                  value={
-                                    editData.plan !== undefined
-                                      ? editData.plan
-                                      : user.plan || "Free"
-                                  }
-                                  onChange={(e) => {
-                                    const plan = e.target.value as PlanType;
-                                    setEditData({
-                                      ...editData,
-                                      plan,
-                                      messagesLimit: planLimits[plan],
-                                    });
-                                  }}
-                                  className="bg-white/10 border border-white/20 rounded px-3 py-2 text-white text-sm"
-                                >
-                                  <option value="Free">Free</option>
-                                  <option value="Classic">Classic</option>
-                                  <option value="Pro">Pro</option>
-                                </select>
-                              ) : (
-                                <span className="text-foreground/70">
-                                  {user.plan}
-                                </span>
-                              )}
-                            </td>
-                            <td className="px-6 py-4">
-                              {editingId === user.uid ? (
-                                <input
-                                  type="number"
-                                  value={
-                                    editData.messagesUsed !== undefined
-                                      ? editData.messagesUsed
-                                      : user.messagesUsed || 0
-                                  }
-                                  onChange={(e) =>
-                                    setEditData({
-                                      ...editData,
-                                      messagesUsed:
-                                        parseInt(e.target.value, 10) || 0,
-                                    })
-                                  }
-                                  className="bg-white/10 border border-white/20 rounded px-3 py-2 text-white text-sm w-20"
-                                />
-                              ) : (
-                                <span className="text-foreground/70">
-                                  {user.messagesUsed} / {user.messagesLimit}
-                                </span>
-                              )}
-                            </td>
-                            <td className="px-6 py-4">
-                              {editingId === user.uid ? (
-                                <input
-                                  type="checkbox"
-                                  checked={
-                                    editData.isAdmin !== undefined
-                                      ? editData.isAdmin
-                                      : user.isAdmin || false
-                                  }
-                                  onChange={(e) =>
-                                    setEditData({
-                                      ...editData,
-                                      isAdmin: e.target.checked,
-                                    })
-                                  }
-                                  className="w-4 h-4"
-                                />
-                              ) : (
-                                <span
-                                  className={
-                                    user.isAdmin
-                                      ? "text-white font-semibold"
-                                      : "text-foreground/70"
-                                  }
-                                >
-                                  {user.isAdmin ? "Oui" : "Non"}
-                                </span>
-                              )}
-                            </td>
-                            <td className="px-6 py-4">
-                              {editingId === user.uid ? (
-                                <div className="flex gap-2">
-                                  <button
-                                    onClick={handleSaveUser}
-                                    className="p-2 bg-white/10 hover:bg-white/20 rounded text-white transition-colors"
-                                  >
-                                    <Save size={16} />
-                                  </button>
-                                  <button
-                                    onClick={() => setEditingId(null)}
-                                    className="p-2 bg-white/10 hover:bg-white/20 rounded text-white transition-colors"
-                                  >
-                                    <X size={16} />
-                                  </button>
-                                </div>
-                              ) : (
-                                <button
-                                  onClick={() => handleEditUser(user)}
-                                  className="p-2 bg-white/10 hover:bg-white/20 rounded text-white transition-colors"
-                                >
-                                  <Edit2 size={16} />
-                                </button>
-                              )}
-                            </td>
-                          </tr>
-                        ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-          </>
+          <AdminUsersList
+            onBanUser={(email) => {
+              setUserEmailToBan(email);
+              setActiveTab("system");
+            }}
+            onWarnUser={(email) => {
+              setUserEmailToBan(email);
+              setActionType("warn");
+              setActiveTab("system");
+            }}
+          />
         )}
 
         {activeTab === "licenses" && (
@@ -919,134 +732,18 @@ export default function Admin() {
 
         {activeTab === "system" && (
           <>
-            {/* System Management Section */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Ban Users */}
-              <div className="bg-white/5 border border-white/10 rounded-xl p-6">
-                <h3 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
-                  <AlertCircle size={20} className="text-red-500" />
-                  Bannir un utilisateur
-                </h3>
+            <AdminBanManagement users={users} />
 
-                <div className="space-y-4 mb-6">
-                  <div>
-                    <label className="block text-sm font-medium text-foreground/70 mb-2">
-                      Email de l'utilisateur
-                    </label>
-                    <input
-                      type="email"
-                      value={userEmailToBan}
-                      onChange={(e) => setUserEmailToBan(e.target.value)}
-                      className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-white/40"
-                      placeholder="user@example.com"
-                    />
-                  </div>
+            {/* Maintenance Mode Section */}
+            <div className="mt-8 bg-white/5 border border-yellow-500/20 rounded-xl p-6">
+              <h3 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
+                <Clock size={20} className="text-yellow-500" />
+                Mode maintenance
+              </h3>
 
-                  <div>
-                    <label className="block text-sm font-medium text-foreground/70 mb-2">
-                      Raison du ban
-                    </label>
-                    <textarea
-                      value={banReason}
-                      onChange={(e) => setBanReason(e.target.value)}
-                      rows={3}
-                      className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-white/40 resize-none"
-                      placeholder="Entrez la raison..."
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-foreground/70 mb-2">
-                      Durée (minutes) - Laisser vide pour permanent
-                    </label>
-                    <input
-                      type="number"
-                      min="1"
-                      value={banDuration || ""}
-                      onChange={(e) =>
-                        setBanDuration(
-                          e.target.value ? parseInt(e.target.value, 10) : null,
-                        )
-                      }
-                      className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-white/40"
-                      placeholder="ex: 1440 (24h)"
-                    />
-                  </div>
-
-                  <button
-                    onClick={handleBanUser}
-                    disabled={savingBan}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-500/20 hover:bg-red-500/30 disabled:opacity-50 text-red-200 font-semibold rounded-lg border border-red-500/50 transition-all"
-                  >
-                    <AlertCircle size={18} />
-                    {savingBan ? "Bannissement..." : "Bannir l'utilisateur"}
-                  </button>
-                </div>
-
-                {/* Active Bans */}
-                <div className="mt-6 pt-6 border-t border-white/10">
-                  <h4 className="text-sm font-semibold text-white mb-3">
-                    Utilisateurs bannis
-                  </h4>
-                  <div className="space-y-2 max-h-64 overflow-y-auto">
-                    {bans.length === 0 ? (
-                      <p className="text-xs text-foreground/50">
-                        Aucun ban actif
-                      </p>
-                    ) : (
-                      bans.map((ban) => (
-                        <div
-                          key={ban.id}
-                          className="bg-white/5 border border-red-500/20 rounded-lg p-3 flex justify-between items-start"
-                        >
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm text-white font-medium truncate">
-                              {ban.email}
-                            </p>
-                            <p className="text-xs text-red-400 truncate">
-                              {ban.reason}
-                            </p>
-                            {ban.expiresAt && (
-                              <p className="text-xs text-foreground/50 mt-1">
-                                Expire:{" "}
-                                {ban.expiresAt
-                                  .toDate()
-                                  .toLocaleDateString("fr-FR", {
-                                    year: "numeric",
-                                    month: "short",
-                                    day: "numeric",
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  })}
-                              </p>
-                            )}
-                            {ban.isPermanent && (
-                              <p className="text-xs text-red-500 font-semibold mt-1">
-                                PERMANENT
-                              </p>
-                            )}
-                          </div>
-                          <button
-                            onClick={() => handleUnbanUser(ban.userId)}
-                            className="ml-2 text-xs px-2 py-1 rounded bg-white/10 hover:bg-white/20 text-foreground/70 hover:text-foreground transition-colors"
-                          >
-                            Débannir
-                          </button>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Maintenance Mode */}
-              <div className="bg-white/5 border border-white/10 rounded-xl p-6">
-                <h3 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
-                  <Clock size={20} className="text-yellow-500" />
-                  Mode maintenance
-                </h3>
-
-                <div className="space-y-4 mb-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Form */}
+                <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-foreground/70 mb-2">
                       Titre
@@ -1110,7 +807,7 @@ export default function Admin() {
                   <button
                     onClick={handleCreateMaintenance}
                     disabled={savingMaintenance}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-yellow-500/20 hover:bg-yellow-500/30 disabled:opacity-50 text-yellow-200 font-semibold rounded-lg border border-yellow-500/50 transition-all"
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-yellow-500/20 hover:bg-yellow-500/30 disabled:opacity-50 text-yellow-200 font-semibold rounded-lg border border-yellow-500/50 transition-all"
                   >
                     <Clock size={18} />
                     {savingMaintenance ? "Création..." : "Démarrer maintenance"}
@@ -1118,9 +815,10 @@ export default function Admin() {
                 </div>
 
                 {/* Active Maintenance */}
-                <div className="mt-6 pt-6 border-t border-white/10">
-                  <h4 className="text-sm font-semibold text-white mb-3">
-                    Maintenances actives
+                <div>
+                  <h4 className="text-sm font-semibold text-white mb-4">
+                    Maintenances actives (
+                    {maintenanceNotices.filter((n) => n.isActive).length})
                   </h4>
                   <div className="space-y-2 max-h-64 overflow-y-auto">
                     {maintenanceNotices.filter((n) => n.isActive).length ===

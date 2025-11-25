@@ -19,6 +19,7 @@ export interface UserBan {
   bannedAt: Timestamp;
   expiresAt?: Timestamp;
   isPermanent: boolean;
+  type: "ban" | "warn";
 }
 
 export interface MaintenanceNotice {
@@ -43,23 +44,58 @@ export class SystemNoticesService {
   ): Promise<void> {
     const banRef = doc(collection(db, "bans"));
     const bannedAt = Timestamp.now();
-    const expiresAt = durationMinutes
-      ? Timestamp.fromDate(
-          new Date(bannedAt.toDate().getTime() + durationMinutes * 60000),
-        )
-      : undefined;
 
-    await setDoc(banRef, {
+    const banData: any = {
       userId,
       email,
       reason,
       bannedAt,
-      expiresAt,
       isPermanent: !durationMinutes,
-    } as UserBan);
+      type: "ban",
+    };
+
+    if (durationMinutes) {
+      banData.expiresAt = Timestamp.fromDate(
+        new Date(bannedAt.toDate().getTime() + durationMinutes * 60000),
+      );
+    }
+
+    await setDoc(banRef, banData as UserBan);
+  }
+
+  static async warnUser(
+    userId: string,
+    email: string,
+    reason: string,
+    durationMinutes?: number,
+  ): Promise<void> {
+    const banRef = doc(collection(db, "bans"));
+    const bannedAt = Timestamp.now();
+
+    const warnData: any = {
+      userId,
+      email,
+      reason,
+      bannedAt,
+      isPermanent: !durationMinutes,
+      type: "warn",
+    };
+
+    if (durationMinutes) {
+      warnData.expiresAt = Timestamp.fromDate(
+        new Date(bannedAt.toDate().getTime() + durationMinutes * 60000),
+      );
+    }
+
+    await setDoc(banRef, warnData as UserBan);
   }
 
   static async unbanUser(userId: string): Promise<void> {
+    if (!userId) {
+      console.warn("unbanUser called with undefined userId");
+      return;
+    }
+
     const q = query(collection(db, "bans"), where("userId", "==", userId));
     const snapshot = await getDocs(q);
 
@@ -69,6 +105,11 @@ export class SystemNoticesService {
   }
 
   static async getUserBan(userId: string): Promise<UserBan | null> {
+    if (!userId) {
+      console.warn("getUserBan called with undefined userId");
+      return null;
+    }
+
     const q = query(collection(db, "bans"), where("userId", "==", userId));
     const snapshot = await getDocs(q);
 
