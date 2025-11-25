@@ -46,13 +46,17 @@ interface SidebarProps {
   onConversationSelect?: (id: string) => void;
 }
 
-export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
+export function Sidebar({
+  isOpen = true,
+  onClose,
+  activeConversationId,
+  onConversationSelect,
+}: SidebarProps) {
   const { user, userData, loading } = useAuth();
   const navigate = useNavigate();
-  const [conversations, setConversations] = useState<Conversation[]>([
-    { id: 1, name: "Nouvelle conversation", active: true },
-  ]);
-  const [editingId, setEditingId] = useState<number | null>(null);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [loadingConversations, setLoadingConversations] = useState(true);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -64,14 +68,57 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
   const messagesUsed = userData?.messagesUsed || 0;
   const messagesLimit = userData?.messagesLimit || 10;
 
-  const handleNewConversation = () => {
-    const newId = Math.max(...conversations.map((c) => c.id), 0) + 1;
-    const newConversation: Conversation = {
-      id: newId,
-      name: `Conversation ${newId}`,
-      active: true,
-    };
-    setConversations([...conversations, newConversation]);
+  useEffect(() => {
+    if (user?.uid) {
+      loadConversations();
+    }
+  }, [user?.uid]);
+
+  const loadConversations = async () => {
+    if (!user?.uid) return;
+    try {
+      setLoadingConversations(true);
+      const fbConversations = await MessagesService.getConversations(user.uid);
+      setConversations(
+        fbConversations.map((conv) => ({
+          id: conv.id,
+          name: conv.title,
+          active: conv.id === activeConversationId,
+          createdAt: conv.createdAt.toDate(),
+          updatedAt: conv.updatedAt.toDate(),
+          messageCount: conv.messageCount,
+        })),
+      );
+    } catch (error) {
+      console.error("Error loading conversations:", error);
+      toast.error("Erreur lors du chargement des conversations");
+    } finally {
+      setLoadingConversations(false);
+    }
+  };
+
+  const handleNewConversation = async () => {
+    if (!user?.uid) return;
+    try {
+      const conversationRef = await MessagesService.createConversation(
+        user.uid,
+        "Nouvelle conversation",
+      );
+      const newConversation: Conversation = {
+        id: conversationRef.id,
+        name: "Nouvelle conversation",
+        active: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        messageCount: 0,
+      };
+      setConversations([newConversation, ...conversations]);
+      onConversationSelect?.(conversationRef.id);
+      toast.success("Conversation créée");
+    } catch (error) {
+      console.error("Error creating conversation:", error);
+      toast.error("Erreur lors de la création de la conversation");
+    }
   };
 
   const handleLogout = async () => {
