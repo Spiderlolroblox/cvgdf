@@ -1,5 +1,10 @@
-import { Plus, LogOut, MoreVertical, Trash2, Edit2 } from "lucide-react";
-import { useState } from "react";
+import { Plus, LogOut, MoreVertical, Trash2, Edit2, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { signOut } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 import {
   Popover,
   PopoverContent,
@@ -26,8 +31,6 @@ interface SidebarProps {
   isOpen?: boolean;
   onClose?: () => void;
 }
-
-type PlanType = "Free" | "Classic" | "Pro";
 
 export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
   const [conversations, setConversations] = useState<Conversation[]>([
