@@ -1,8 +1,7 @@
 {
   "buildCommand": "npm run build:client",
   "outputDirectory": "dist/spa",
+  "installCommand": "pnpm install",
   "framework": "vite",
-  "env": {
-    "OPENROUTER_API_KEY": "@openrouter_api_key"
-  }
+  "nodejs": "22.x"
 }
