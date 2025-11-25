@@ -14,6 +14,7 @@ export interface UserData {
   messagesLimit: number;
   createdAt: number;
   isAdmin: boolean;
+  licenseKey?: string;
 }
 
 interface AuthContextType {
