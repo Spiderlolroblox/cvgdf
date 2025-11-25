@@ -5,6 +5,7 @@ import { auth } from "@/lib/firebase";
 import { Sidebar } from "@/components/Sidebar";
 import { ChatArea } from "@/components/ChatArea";
 import { SystemNoticeModal } from "@/components/SystemNoticeModal";
+import { MessageLimitModal } from "@/components/MessageLimitModal";
 import { Menu, Loader2 } from "lucide-react";
 import { MessagesService } from "@/lib/messages";
 
