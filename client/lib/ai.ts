@@ -6,7 +6,6 @@ export interface AIConfig {
   systemPrompt: string;
   temperature: number;
   maxTokens: number;
-  apiKey: string;
 }
 
 const DEFAULT_CONFIG: AIConfig = {
@@ -14,7 +13,6 @@ const DEFAULT_CONFIG: AIConfig = {
   systemPrompt: "Tu es un assistant utile et amical. Réponds en français.",
   temperature: 0.7,
   maxTokens: 2048,
-  apiKey: "", // API key is now handled by backend
 };
 
 export class AIService {
