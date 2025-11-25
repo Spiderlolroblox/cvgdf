@@ -80,9 +80,11 @@ export default function Index() {
             <Sidebar
               isOpen={sidebarOpen}
               onClose={() => setSidebarOpen(false)}
+              activeConversationId={activeConversationId}
+              onConversationSelect={setActiveConversationId}
             />
             <div className="flex-1 flex flex-col md:flex-row">
-              <ChatArea />
+              <ChatArea conversationId={activeConversationId} />
             </div>
           </div>
         )}
