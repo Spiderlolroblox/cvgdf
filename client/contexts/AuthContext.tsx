@@ -127,6 +127,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               email: authUser.email || "",
               displayName: authUser.displayName || "Utilisateur",
               plan: "Free",
+              role: "user",
+              category: "individual",
               messagesUsed: 0,
               messagesLimit: 10,
               createdAt: Date.now(),
