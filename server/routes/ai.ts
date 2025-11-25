@@ -120,7 +120,7 @@ export const handleAIChat: RequestHandler = async (req, res) => {
     return res.json({ content });
   } catch (error) {
     console.error("AI route error:", error);
-    res.status(500).json({
+    return res.status(500).json({
       error: error instanceof Error ? error.message : "Internal server error",
     });
   }
