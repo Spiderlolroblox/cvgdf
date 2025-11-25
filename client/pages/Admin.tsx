@@ -44,12 +44,16 @@ import {
 export default function Admin() {
   const { userData } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<"users" | "licenses" | "ai" | "system">("users");
+  const [activeTab, setActiveTab] = useState<
+    "users" | "licenses" | "ai" | "system"
+  >("users");
   const [users, setUsers] = useState<UserData[]>([]);
   const [licenses, setLicenses] = useState<LicenseKey[]>([]);
   const [aiConfig, setAiConfig] = useState<AIConfig | null>(null);
   const [bans, setBans] = useState<UserBan[]>([]);
-  const [maintenanceNotices, setMaintenanceNotices] = useState<MaintenanceNotice[]>([]);
+  const [maintenanceNotices, setMaintenanceNotices] = useState<
+    MaintenanceNotice[]
+  >([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editData, setEditData] = useState<Partial<UserData>>({});
@@ -63,7 +67,9 @@ export default function Admin() {
   const [maintenanceTitle, setMaintenanceTitle] = useState("");
   const [maintenanceMessage, setMaintenanceMessage] = useState("");
   const [maintenanceDuration, setMaintenanceDuration] = useState(30);
-  const [maintenanceSeverity, setMaintenanceSeverity] = useState<"info" | "warning" | "critical">("warning");
+  const [maintenanceSeverity, setMaintenanceSeverity] = useState<
+    "info" | "warning" | "critical"
+  >("warning");
   const [savingBan, setSavingBan] = useState(false);
   const [savingMaintenance, setSavingMaintenance] = useState(false);
 
@@ -79,7 +85,13 @@ export default function Admin() {
 
   const loadData = async () => {
     try {
-      await Promise.all([loadUsers(), loadLicenses(), loadAiConfig(), loadBans(), loadMaintenance()]);
+      await Promise.all([
+        loadUsers(),
+        loadLicenses(),
+        loadAiConfig(),
+        loadBans(),
+        loadMaintenance(),
+      ]);
     } catch (error) {
       toast.error("Erreur lors du chargement des données");
     } finally {
@@ -199,7 +211,9 @@ export default function Admin() {
       await AIService.updateConfig(aiConfig);
       toast.success("Configuration IA mise à jour");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Erreur lors de la sauvegarde");
+      toast.error(
+        error instanceof Error ? error.message : "Erreur lors de la sauvegarde",
+      );
     } finally {
       setSavingAiConfig(false);
     }
@@ -768,7 +782,9 @@ export default function Admin() {
                       value={aiConfig?.model || ""}
                       onChange={(e) =>
                         setAiConfig(
-                          aiConfig ? { ...aiConfig, model: e.target.value } : null,
+                          aiConfig
+                            ? { ...aiConfig, model: e.target.value }
+                            : null,
                         )
                       }
                       className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-white/40"
@@ -793,7 +809,10 @@ export default function Admin() {
                       onChange={(e) =>
                         setAiConfig(
                           aiConfig
-                            ? { ...aiConfig, temperature: parseFloat(e.target.value) }
+                            ? {
+                                ...aiConfig,
+                                temperature: parseFloat(e.target.value),
+                              }
                             : null,
                         )
                       }
@@ -817,7 +836,10 @@ export default function Admin() {
                       onChange={(e) =>
                         setAiConfig(
                           aiConfig
-                            ? { ...aiConfig, maxTokens: parseInt(e.target.value, 10) }
+                            ? {
+                                ...aiConfig,
+                                maxTokens: parseInt(e.target.value, 10),
+                              }
                             : null,
                         )
                       }
@@ -865,7 +887,9 @@ export default function Admin() {
                       value={aiConfig?.apiKey || ""}
                       onChange={(e) =>
                         setAiConfig(
-                          aiConfig ? { ...aiConfig, apiKey: e.target.value } : null,
+                          aiConfig
+                            ? { ...aiConfig, apiKey: e.target.value }
+                            : null,
                         )
                       }
                       className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-white/40"
@@ -940,7 +964,9 @@ export default function Admin() {
                       min="1"
                       value={banDuration || ""}
                       onChange={(e) =>
-                        setBanDuration(e.target.value ? parseInt(e.target.value, 10) : null)
+                        setBanDuration(
+                          e.target.value ? parseInt(e.target.value, 10) : null,
+                        )
                       }
                       className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-white/40"
                       placeholder="ex: 1440 (24h)"
@@ -959,10 +985,14 @@ export default function Admin() {
 
                 {/* Active Bans */}
                 <div className="mt-6 pt-6 border-t border-white/10">
-                  <h4 className="text-sm font-semibold text-white mb-3">Utilisateurs bannis</h4>
+                  <h4 className="text-sm font-semibold text-white mb-3">
+                    Utilisateurs bannis
+                  </h4>
                   <div className="space-y-2 max-h-64 overflow-y-auto">
                     {bans.length === 0 ? (
-                      <p className="text-xs text-foreground/50">Aucun ban actif</p>
+                      <p className="text-xs text-foreground/50">
+                        Aucun ban actif
+                      </p>
                     ) : (
                       bans.map((ban) => (
                         <div
@@ -970,22 +1000,30 @@ export default function Admin() {
                           className="bg-white/5 border border-red-500/20 rounded-lg p-3 flex justify-between items-start"
                         >
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm text-white font-medium truncate">{ban.email}</p>
-                            <p className="text-xs text-red-400 truncate">{ban.reason}</p>
+                            <p className="text-sm text-white font-medium truncate">
+                              {ban.email}
+                            </p>
+                            <p className="text-xs text-red-400 truncate">
+                              {ban.reason}
+                            </p>
                             {ban.expiresAt && (
                               <p className="text-xs text-foreground/50 mt-1">
                                 Expire:{" "}
-                                {ban.expiresAt.toDate().toLocaleDateString("fr-FR", {
-                                  year: "numeric",
-                                  month: "short",
-                                  day: "numeric",
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                })}
+                                {ban.expiresAt
+                                  .toDate()
+                                  .toLocaleDateString("fr-FR", {
+                                    year: "numeric",
+                                    month: "short",
+                                    day: "numeric",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  })}
                               </p>
                             )}
                             {ban.isPermanent && (
-                              <p className="text-xs text-red-500 font-semibold mt-1">PERMANENT</p>
+                              <p className="text-xs text-red-500 font-semibold mt-1">
+                                PERMANENT
+                              </p>
                             )}
                           </div>
                           <button
@@ -1043,7 +1081,9 @@ export default function Admin() {
                       type="number"
                       min="1"
                       value={maintenanceDuration}
-                      onChange={(e) => setMaintenanceDuration(parseInt(e.target.value, 10))}
+                      onChange={(e) =>
+                        setMaintenanceDuration(parseInt(e.target.value, 10))
+                      }
                       className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-white/40"
                     />
                   </div>
@@ -1055,7 +1095,9 @@ export default function Admin() {
                     <select
                       value={maintenanceSeverity}
                       onChange={(e) =>
-                        setMaintenanceSeverity(e.target.value as "info" | "warning" | "critical")
+                        setMaintenanceSeverity(
+                          e.target.value as "info" | "warning" | "critical",
+                        )
                       }
                       className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-white/40"
                     >
@@ -1081,8 +1123,11 @@ export default function Admin() {
                     Maintenances actives
                   </h4>
                   <div className="space-y-2 max-h-64 overflow-y-auto">
-                    {maintenanceNotices.filter((n) => n.isActive).length === 0 ? (
-                      <p className="text-xs text-foreground/50">Pas de maintenance en cours</p>
+                    {maintenanceNotices.filter((n) => n.isActive).length ===
+                    0 ? (
+                      <p className="text-xs text-foreground/50">
+                        Pas de maintenance en cours
+                      </p>
                     ) : (
                       maintenanceNotices
                         .filter((n) => n.isActive)
@@ -1093,7 +1138,9 @@ export default function Admin() {
                           >
                             <div className="flex justify-between items-start">
                               <div className="flex-1 min-w-0">
-                                <p className="text-sm text-white font-medium">{notice.title}</p>
+                                <p className="text-sm text-white font-medium">
+                                  {notice.title}
+                                </p>
                                 <p className="text-xs text-foreground/50 mt-1 truncate">
                                   {notice.message}
                                 </p>
@@ -1106,8 +1153,12 @@ export default function Admin() {
                                         : "text-blue-400"
                                   }`}
                                 >
-                                  {notice.severity === "critical" ? "CRITIQUE" : ""}
-                                  {notice.severity === "warning" ? "AVERTISSEMENT" : ""}
+                                  {notice.severity === "critical"
+                                    ? "CRITIQUE"
+                                    : ""}
+                                  {notice.severity === "warning"
+                                    ? "AVERTISSEMENT"
+                                    : ""}
                                   {notice.severity === "info" ? "INFO" : ""}
                                 </p>
                               </div>

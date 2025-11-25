@@ -91,7 +91,9 @@ export function ChatArea() {
         userData.messagesUsed + 1,
       );
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Erreur lors de l'envoi");
+      toast.error(
+        error instanceof Error ? error.message : "Erreur lors de l'envoi",
+      );
     } finally {
       setLoading(false);
     }

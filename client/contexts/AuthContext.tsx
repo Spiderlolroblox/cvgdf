@@ -2,7 +2,11 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { User, onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
-import { SystemNoticesService, UserBan, MaintenanceNotice } from "@/lib/system-notices";
+import {
+  SystemNoticesService,
+  UserBan,
+  MaintenanceNotice,
+} from "@/lib/system-notices";
 
 export type PlanType = "Free" | "Classic" | "Pro";
 
@@ -42,7 +46,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [userBan, setUserBan] = useState<UserBan | null>(null);
-  const [maintenanceNotice, setMaintenanceNotice] = useState<MaintenanceNotice | null>(null);
+  const [maintenanceNotice, setMaintenanceNotice] =
+    useState<MaintenanceNotice | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -61,7 +66,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }
 
           // Check for active maintenance
-          const maintenance = await SystemNoticesService.getActiveMaintenanceNotice();
+          const maintenance =
+            await SystemNoticesService.getActiveMaintenanceNotice();
           if (isMounted) {
             setMaintenanceNotice(maintenance);
           }

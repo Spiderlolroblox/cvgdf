@@ -56,7 +56,10 @@ export default function Index() {
         />
         {maintenanceNotice.severity !== "critical" && (
           <div className="flex h-screen bg-background opacity-50 pointer-events-none">
-            <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+            <Sidebar
+              isOpen={sidebarOpen}
+              onClose={() => setSidebarOpen(false)}
+            />
             <div className="flex-1 flex flex-col md:flex-row">
               <ChatArea />
             </div>

@@ -67,10 +67,14 @@ export function SystemNoticeModal({
             <div>
               <h2 className="text-xl font-bold text-white mb-1">{title}</h2>
               {type === "ban" && (
-                <p className="text-sm text-red-400/80">Votre compte a été banni</p>
+                <p className="text-sm text-red-400/80">
+                  Votre compte a été banni
+                </p>
               )}
               {type === "maintenance" && (
-                <p className="text-sm text-yellow-400/80">Maintenance en cours</p>
+                <p className="text-sm text-yellow-400/80">
+                  Maintenance en cours
+                </p>
               )}
             </div>
           </div>
