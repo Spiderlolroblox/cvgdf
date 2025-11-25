@@ -28,13 +28,68 @@ const EMOJIS = [
 ];
 
 export function ChatArea() {
+  const { user, userData } = useAuth();
   const [message, setMessage] = useState("");
   const [emojiOpen, setEmojiOpen] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
 
-  const handleSend = () => {
-    if (message.trim()) {
-      console.log("Message sent:", message);
+  useEffect(() => {
+    const initConversation = async () => {
+      if (!user || !userData) return;
+
+      try {
+        const convs = await MessagesService.getConversations(user.uid);
+        if (convs.length === 0) {
+          const newConv = await MessagesService.createConversation(
+            user.uid,
+            "Nouvelle conversation"
+          );
+          setCurrentConversationId(newConv.id);
+        } else {
+          setCurrentConversationId(convs[0].id);
+          const msgs = await MessagesService.getMessages(convs[0].id);
+          setMessages(msgs);
+        }
+      } catch (error) {
+        toast.error("Erreur lors du chargement des conversations");
+      }
+    };
+
+    initConversation();
+  }, [user, userData]);
+
+  const handleSend = async () => {
+    if (!message.trim() || !user || !currentConversationId || !userData) return;
+
+    // Check message limit
+    if (userData.messagesUsed >= userData.messagesLimit) {
+      toast.error("Limite de messages atteinte. Améliorez votre plan.");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      await MessagesService.addMessage(
+        currentConversationId,
+        user.uid,
+        message
+      );
+
+      // Update message count
+      await MessagesService.updateUserMessageCount(
+        user.uid,
+        userData.messagesUsed + 1
+      );
+
       setMessage("");
+      toast.success("Message envoyé");
+    } catch (error) {
+      toast.error("Erreur lors de l'envoi du message");
+    } finally {
+      setLoading(false);
     }
   };
 
