@@ -33,5 +33,8 @@ export function createServer() {
   // Daily reset route
   app.post("/api/daily-reset", handleDailyReset);
 
+  // AI chat route
+  app.post("/api/ai/chat", handleAIChat);
+
   return app;
 }
