@@ -670,7 +670,8 @@ export default function Admin() {
                       placeholder="Entrez les instructions pour l'IA..."
                     />
                     <p className="text-xs text-foreground/50 mt-2">
-                      Les instructions définissent le comportement et le style de l'IA
+                      Les instructions définissent le comportement et le style
+                      de l'IA
                     </p>
                   </div>
                 </div>
