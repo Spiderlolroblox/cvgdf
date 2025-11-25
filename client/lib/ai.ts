@@ -65,36 +65,29 @@ export class AIService {
         }),
       });
 
-      // Check status before reading body
-      if (!response.ok) {
-        const contentType = response.headers.get("content-type");
-        let errorMessage = `API error: ${response.status}`;
+      // Read body once and parse as JSON
+      let data: any;
+      const contentType = response.headers.get("content-type");
 
-        if (contentType && contentType.includes("application/json")) {
-          try {
-            const errorData = await response.json();
-            errorMessage = errorData.error || errorMessage;
-          } catch (parseError) {
-            console.error("Failed to parse error response:", parseError);
-          }
+      if (contentType && contentType.includes("application/json")) {
+        try {
+          data = await response.json();
+        } catch (parseError) {
+          console.error("Failed to parse response:", parseError);
+          throw new Error("Erreur serveur: réponse invalide");
         }
+      } else {
+        throw new Error(`Unexpected content type: ${contentType}`);
+      }
 
+      // Check status after reading body
+      if (!response.ok) {
+        const errorMessage = data?.error || `API error: ${response.status}`;
         throw new Error(errorMessage);
       }
 
-      // Only read body if status is ok
-      const data = await response.json();
       return data.content || "Pas de réponse";
     } catch (error) {
-      if (
-        error instanceof SyntaxError &&
-        error.message.includes("body stream")
-      ) {
-        throw new Error(
-          "Erreur serveur: réponse invalide. Veuillez réessayer.",
-        );
-      }
-
       throw error instanceof Error
         ? error
         : new Error("Erreur lors de la requête IA");
