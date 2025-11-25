@@ -3,7 +3,6 @@ import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 
@@ -59,6 +58,9 @@ export function LicenseActivationModal({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="border border-gray-800 rounded-lg p-0 bg-black shadow-xl">
+        <DialogTitle className="sr-only">
+          Activer une Licence
+        </DialogTitle>
         {success ? (
           <div className="flex flex-col items-center justify-center py-12 px-8 space-y-6">
             <div className="text-center space-y-2">
