@@ -1,16 +1,4 @@
-import { RequestHandler } from "express";
-
-const PROJECT_ID = "keysystem-d0b86-8df89";
-const FIRESTORE_API_KEY = "AIzaSyD7KlxN05OoSCGHwjXhiiYyKF5bOXianLY";
-
-function extractValue(field: any): any {
-  if (!field) return null;
-  if (field.stringValue !== undefined) return field.stringValue;
-  if (field.integerValue !== undefined) return parseInt(field.integerValue);
-  if (field.booleanValue !== undefined) return field.booleanValue;
-  if (field.doubleValue !== undefined) return field.doubleValue;
-  return null;
-}
+import { VercelRequest, VercelResponse } from "@vercel/node";
 
 interface AIRequest {
   userMessage: string;
@@ -21,7 +9,11 @@ interface AIRequest {
   systemPrompt: string;
 }
 
-export const handleAIChat: RequestHandler = async (req, res) => {
+export default async (req: VercelRequest, res: VercelResponse) => {
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
+
   const {
     userMessage,
     conversationHistory,
@@ -53,7 +45,9 @@ export const handleAIChat: RequestHandler = async (req, res) => {
         headers: {
           Authorization: `Bearer ${apiKey}`,
           "Content-Type": "application/json",
-          "HTTP-Referer": process.env.APP_URL || "http://localhost:5173",
+          "HTTP-Referer": process.env.VERCEL_URL
+            ? `https://${process.env.VERCEL_URL}`
+            : "http://localhost:3000",
           "X-Title": "Chat AI",
         },
         body: JSON.stringify({
