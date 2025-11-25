@@ -9,12 +9,20 @@ import {
 } from "@/lib/system-notices";
 
 export type PlanType = "Free" | "Classic" | "Pro";
+export type UserRole = "user" | "moderator" | "admin";
+export type UserCategory =
+  | "individual"
+  | "business"
+  | "organization"
+  | "developer";
 
 export interface UserData {
   uid: string;
   email: string;
   displayName: string;
   plan: PlanType;
+  role: UserRole;
+  category: UserCategory;
   messagesUsed: number;
   messagesLimit: number;
   createdAt: number;
@@ -123,6 +131,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               email: authUser.email || "",
               displayName: authUser.displayName || "Utilisateur",
               plan: "Free",
+              role: "user",
+              category: "individual",
               messagesUsed: 0,
               messagesLimit: 10,
               createdAt: Date.now(),

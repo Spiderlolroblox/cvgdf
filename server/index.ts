@@ -5,6 +5,7 @@ import { handleDemo } from "./routes/demo";
 import { handleGetIP, handleCheckVPN } from "./routes/ip-detection";
 import { handleActivateLicense } from "./routes/license";
 import { handleDailyReset } from "./routes/daily-reset";
+import { handleAIChat } from "./routes/ai";
 
 export function createServer() {
   const app = express();
@@ -31,6 +32,9 @@ export function createServer() {
 
   // Daily reset route
   app.post("/api/daily-reset", handleDailyReset);
+
+  // AI chat route
+  app.post("/api/ai/chat", handleAIChat);
 
   return app;
 }

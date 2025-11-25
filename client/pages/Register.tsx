@@ -116,23 +116,73 @@ export default function Register() {
         email: user.email || "",
         displayName: email.split("@")[0],
         plan: planToUse,
+        role: "user",
+        category: "individual",
         messagesUsed: 0,
         messagesLimit: planLimits[planToUse],
         createdAt: Date.now(),
         isAdmin: false,
-        licenseKey: licenseKey.trim() || undefined,
       };
 
-      await setDoc(doc(db, "users", user.uid), userData);
+      // Only add licenseKey if it was provided
+      if (licenseKey.trim()) {
+        (userData as any).licenseKey = licenseKey.trim();
+      }
 
-      // Record user IP
-      await IPService.recordUserIP(user.uid, user.email || "", userIP);
+      // Create user document in Firestore
+      try {
+        await setDoc(doc(db, "users", user.uid), userData);
+      } catch (firestoreError) {
+        console.error("Firestore error:", firestoreError);
+        throw new Error(
+          "Impossible de créer le profil utilisateur. Veuillez réessayer.",
+        );
+      }
+
+      // Record user IP (non-critical, don't block registration)
+      try {
+        await IPService.recordUserIP(user.uid, user.email || "", userIP);
+      } catch (ipError) {
+        console.error("IP recording error (non-critical):", ipError);
+      }
 
       toast.success("Compte créé avec succès!");
       navigate("/");
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Erreur d'inscription";
+      let message = "Erreur d'inscription";
+
+      if (error && typeof error === "object") {
+        const firebaseError = error as { code?: string; message?: string };
+
+        // Map Firebase error codes to user-friendly messages
+        const errorMap: Record<string, string> = {
+          "auth/email-already-in-use": "Cet email est déjà utilisé",
+          "auth/invalid-email": "Email invalide",
+          "auth/weak-password":
+            "Le mot de passe doit contenir au moins 6 caractères",
+          "auth/operation-not-allowed": "L'inscription n'est pas autorisée",
+          "auth/network-request-failed":
+            "Erreur de connexion réseau. Vérifiez votre connexion internet.",
+        };
+
+        if (firebaseError.code) {
+          message = errorMap[firebaseError.code] || firebaseError.code;
+        } else if (firebaseError.message) {
+          // Handle cases where Firebase returns a message instead of code
+          if (firebaseError.message.includes("EMAIL_EXISTS")) {
+            message = "Cet email est déjà utilisé";
+          } else if (firebaseError.message.includes("WEAK_PASSWORD")) {
+            message = "Le mot de passe doit contenir au moins 6 caractères";
+          } else if (firebaseError.message.includes("INVALID_EMAIL")) {
+            message = "Email invalide";
+          } else {
+            message = firebaseError.message;
+          }
+        }
+      } else if (error instanceof Error) {
+        message = error.message;
+      }
+
       toast.error(message);
     } finally {
       setLoading(false);

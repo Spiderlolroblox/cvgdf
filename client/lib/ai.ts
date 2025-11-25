@@ -14,8 +14,7 @@ const DEFAULT_CONFIG: AIConfig = {
   systemPrompt: "Tu es un assistant utile et amical. Réponds en français.",
   temperature: 0.7,
   maxTokens: 2048,
-  apiKey:
-    "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",
+  apiKey: "", // API key is now handled by backend
 };
 
 export class AIService {
@@ -50,43 +49,52 @@ export class AIService {
     const config = await this.getConfig();
 
     try {
-      const response = await fetch(
-        "https://openrouter.ai/api/v1/chat/completions",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${config.apiKey}`,
-            "Content-Type": "application/json",
-            "HTTP-Referer": window.location.origin,
-            "X-Title": "Chat AI",
-          },
-          body: JSON.stringify({
-            model: config.model,
-            messages: [
-              {
-                role: "system",
-                content: config.systemPrompt,
-              },
-              ...conversationHistory,
-              {
-                role: "user",
-                content: userMessage,
-              },
-            ],
-            temperature: config.temperature,
-            max_tokens: config.maxTokens,
-          }),
+      // Call backend endpoint instead of directly calling OpenRouter
+      const response = await fetch("/api/ai/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify({
+          userMessage,
+          conversationHistory,
+          model: config.model,
+          temperature: config.temperature,
+          maxTokens: config.maxTokens,
+          systemPrompt: config.systemPrompt,
+        }),
+      });
 
+      // Check status before reading body
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error?.message || "Erreur API OpenRouter");
+        const contentType = response.headers.get("content-type");
+        let errorMessage = `API error: ${response.status}`;
+
+        if (contentType && contentType.includes("application/json")) {
+          try {
+            const errorData = await response.json();
+            errorMessage = errorData.error || errorMessage;
+          } catch (parseError) {
+            console.error("Failed to parse error response:", parseError);
+          }
+        }
+
+        throw new Error(errorMessage);
       }
 
+      // Only read body if status is ok
       const data = await response.json();
-      return data.choices[0]?.message?.content || "Pas de réponse";
+      return data.content || "Pas de réponse";
     } catch (error) {
+      if (
+        error instanceof SyntaxError &&
+        error.message.includes("body stream")
+      ) {
+        throw new Error(
+          "Erreur serveur: réponse invalide. Veuillez réessayer.",
+        );
+      }
+
       throw error instanceof Error
         ? error
         : new Error("Erreur lors de la requête IA");
