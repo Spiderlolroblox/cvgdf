@@ -1,12 +1,7 @@
 {
-  "buildCommand": "npm run build",
+  "buildCommand": "npm run build:client",
   "outputDirectory": "dist/spa",
-  "devCommand": "npm run dev",
-  "functions": {
-    "api/**": {
-      "runtime": "nodejs22.x"
-    }
-  },
+  "framework": "vite",
   "env": {
     "OPENROUTER_API_KEY": "@openrouter_api_key"
   }
