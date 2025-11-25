@@ -79,7 +79,7 @@ export default function Admin() {
 
   const loadData = async () => {
     try {
-      await Promise.all([loadUsers(), loadLicenses(), loadAiConfig()]);
+      await Promise.all([loadUsers(), loadLicenses(), loadAiConfig(), loadBans(), loadMaintenance()]);
     } catch (error) {
       toast.error("Erreur lors du chargement des données");
     } finally {
