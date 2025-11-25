@@ -14,6 +14,7 @@ export interface UserData {
   messagesLimit: number;
   createdAt: number;
   isAdmin: boolean;
+  licenseKey?: string;
 }
 
 interface AuthContextType {
@@ -39,12 +40,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    let isMounted = true;
+
     const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
       try {
+        if (!isMounted) return;
+
         if (authUser) {
           setUser(authUser);
           const userDocRef = doc(db, "users", authUser.uid);
           const userDocSnap = await getDoc(userDocRef);
+
+          if (!isMounted) return;
 
           if (userDocSnap.exists()) {
             setUserData(userDocSnap.data() as UserData);
@@ -67,14 +74,55 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setUserData(null);
         }
       } catch (err) {
+        if (!isMounted) return;
         setError(err instanceof Error ? err.message : "Auth error");
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     });
 
-    return unsubscribe;
+    return () => {
+      isMounted = false;
+      unsubscribe();
+    };
   }, []);
+
+  useEffect(() => {
+    if (!user) return;
+
+    let isMounted = true;
+    let timeoutId: NodeJS.Timeout;
+
+    const refreshUserData = async () => {
+      if (!isMounted) return;
+
+      try {
+        const userDocRef = doc(db, "users", user.uid);
+        const userDocSnap = await getDoc(userDocRef);
+
+        if (isMounted && userDocSnap.exists()) {
+          setUserData(userDocSnap.data() as UserData);
+        }
+      } catch (err) {
+        if (isMounted) {
+          console.error("Error refreshing user data:", err);
+        }
+      }
+
+      if (isMounted) {
+        timeoutId = setTimeout(refreshUserData, 5000);
+      }
+    };
+
+    timeoutId = setTimeout(refreshUserData, 5000);
+
+    return () => {
+      isMounted = false;
+      clearTimeout(timeoutId);
+    };
+  }, [user]);
 
   return (
     <AuthContext.Provider

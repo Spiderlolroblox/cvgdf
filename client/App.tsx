@@ -5,9 +5,17 @@ import { createRoot } from "react-dom/client";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  useNavigate,
+} from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { Loader2 } from "lucide-react";
+import { useEffect } from "react";
+import { toast } from "sonner";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
@@ -49,6 +57,55 @@ function AuthPages() {
   return user ? <Navigate to="/" replace /> : <></>;
 }
 
+function AppRoutes() {
+  const navigate = useNavigate();
+  const { userData } = useAuth();
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === "A") {
+        e.preventDefault();
+        if (userData?.isAdmin) {
+          navigate("/admin");
+          toast.success("Accès au panneau admin");
+        } else {
+          toast.error("Vous n'êtes pas administrateur");
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [navigate, userData?.isAdmin]);
+
+  return (
+    <Routes>
+      <Route
+        path="/login"
+        element={
+          <>
+            <AuthPages />
+            <Login />
+          </>
+        }
+      />
+      <Route
+        path="/register"
+        element={
+          <>
+            <AuthPages />
+            <Register />
+          </>
+        }
+      />
+      <Route path="/admin" element={<AdminRoute element={<Admin />} />} />
+      <Route path="/" element={<ProtectedRoute element={<Index />} />} />
+      {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  );
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -56,30 +113,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Routes>
-            <Route
-              path="/login"
-              element={
-                <>
-                  <AuthPages />
-                  <Login />
-                </>
-              }
-            />
-            <Route
-              path="/register"
-              element={
-                <>
-                  <AuthPages />
-                  <Register />
-                </>
-              }
-            />
-            <Route path="/admin" element={<AdminRoute element={<Admin />} />} />
-            <Route path="/" element={<ProtectedRoute element={<Index />} />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <AppRoutes />
         </BrowserRouter>
       </AuthProvider>
     </TooltipProvider>
