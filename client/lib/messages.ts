@@ -10,8 +10,8 @@ import {
   updateDoc,
   Timestamp,
   DocumentReference,
-} from 'firebase/firestore';
-import { db } from './firebase';
+} from "firebase/firestore";
+import { db } from "./firebase";
 
 export interface Message {
   id: string;
@@ -34,9 +34,9 @@ export interface Conversation {
 export class MessagesService {
   static async createConversation(
     userId: string,
-    title: string
+    title: string,
   ): Promise<DocumentReference> {
-    const conversationRef = await addDoc(collection(db, 'conversations'), {
+    const conversationRef = await addDoc(collection(db, "conversations"), {
       userId,
       title,
       createdAt: Timestamp.now(),
@@ -48,12 +48,12 @@ export class MessagesService {
 
   static async getConversations(userId: string): Promise<Conversation[]> {
     const q = query(
-      collection(db, 'conversations'),
-      where('userId', '==', userId),
-      orderBy('updatedAt', 'desc')
+      collection(db, "conversations"),
+      where("userId", "==", userId),
+      orderBy("updatedAt", "desc"),
     );
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({
+    return snapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
       createdAt: doc.data().createdAt as Timestamp,
@@ -62,14 +62,14 @@ export class MessagesService {
   }
 
   static async deleteConversation(conversationId: string): Promise<void> {
-    await deleteDoc(doc(db, 'conversations', conversationId));
+    await deleteDoc(doc(db, "conversations", conversationId));
   }
 
   static async updateConversation(
     conversationId: string,
-    data: Partial<Conversation>
+    data: Partial<Conversation>,
   ): Promise<void> {
-    await updateDoc(doc(db, 'conversations', conversationId), {
+    await updateDoc(doc(db, "conversations", conversationId), {
       ...data,
       updatedAt: Timestamp.now(),
     });
@@ -78,9 +78,9 @@ export class MessagesService {
   static async addMessage(
     conversationId: string,
     userId: string,
-    text: string
+    text: string,
   ): Promise<string> {
-    const messageRef = await addDoc(collection(db, 'messages'), {
+    const messageRef = await addDoc(collection(db, "messages"), {
       conversationId,
       userId,
       text,
@@ -88,15 +88,16 @@ export class MessagesService {
     });
 
     // Update conversation's message count
-    const conversations = collection(db, 'conversations');
+    const conversations = collection(db, "conversations");
     const conversationDoc = doc(conversations, conversationId);
     const conversationSnapshot = await getDocs(
-      query(conversations, where('id', '==', conversationId))
+      query(conversations, where("id", "==", conversationId)),
     );
 
     if (conversationSnapshot.docs.length > 0) {
       await updateDoc(conversationDoc, {
-        messageCount: (conversationSnapshot.docs[0].data().messageCount || 0) + 1,
+        messageCount:
+          (conversationSnapshot.docs[0].data().messageCount || 0) + 1,
         updatedAt: Timestamp.now(),
       });
     }
@@ -106,12 +107,12 @@ export class MessagesService {
 
   static async getMessages(conversationId: string): Promise<Message[]> {
     const q = query(
-      collection(db, 'messages'),
-      where('conversationId', '==', conversationId),
-      orderBy('createdAt', 'asc')
+      collection(db, "messages"),
+      where("conversationId", "==", conversationId),
+      orderBy("createdAt", "asc"),
     );
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({
+    return snapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
       createdAt: doc.data().createdAt as Timestamp,
@@ -120,14 +121,14 @@ export class MessagesService {
   }
 
   static async deleteMessage(messageId: string): Promise<void> {
-    await deleteDoc(doc(db, 'messages', messageId));
+    await deleteDoc(doc(db, "messages", messageId));
   }
 
   static async updateUserMessageCount(
     userId: string,
-    messagesUsed: number
+    messagesUsed: number,
   ): Promise<void> {
-    await updateDoc(doc(db, 'users', userId), {
+    await updateDoc(doc(db, "users", userId), {
       messagesUsed,
     });
   }

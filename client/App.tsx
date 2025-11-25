@@ -57,8 +57,24 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/login" element={<><AuthPages /><Login /></>} />
-            <Route path="/register" element={<><AuthPages /><Register /></>} />
+            <Route
+              path="/login"
+              element={
+                <>
+                  <AuthPages />
+                  <Login />
+                </>
+              }
+            />
+            <Route
+              path="/register"
+              element={
+                <>
+                  <AuthPages />
+                  <Register />
+                </>
+              }
+            />
             <Route path="/admin" element={<AdminRoute element={<Admin />} />} />
             <Route path="/" element={<ProtectedRoute element={<Index />} />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

@@ -17,42 +17,48 @@ interface TutorialStep {
 const TUTORIAL_STEPS: TutorialStep[] = [
   {
     title: "Bienvenue dans le Chat",
-    description: "Ceci est votre interface de chat intelligente. Commencez par explorer les différentes fonctionnalités!",
+    description:
+      "Ceci est votre interface de chat intelligente. Commencez par explorer les différentes fonctionnalités!",
     targetId: "chat-area",
     arrowPosition: "top",
     position: "bottom",
   },
   {
     title: "Créer une Nouvelle Conversation",
-    description: "Cliquez ici pour démarrer une nouvelle conversation. Chacune est enregistrée séparément.",
+    description:
+      "Cliquez ici pour démarrer une nouvelle conversation. Chacune est enregistrée séparément.",
     targetId: "new-conversation-btn",
     arrowPosition: "right",
     position: "right",
   },
   {
     title: "Gérer Vos Conversations",
-    description: "Vos conversations apparaissent ici. Survolez pour modifier ou supprimer.",
+    description:
+      "Vos conversations apparaissent ici. Survolez pour modifier ou supprimer.",
     targetId: "conversations-list",
     arrowPosition: "right",
     position: "right",
   },
   {
     title: "Envoyer des Messages",
-    description: "Tapez votre message ici. Appuyez sur Entrée pour envoyer ou Maj+Entrée pour une nouvelle ligne.",
+    description:
+      "Tapez votre message ici. Appuyez sur Entrée pour envoyer ou Maj+Entrée pour une nouvelle ligne.",
     targetId: "message-input",
     arrowPosition: "top",
     position: "top",
   },
   {
     title: "Ajouter des Emojis",
-    description: "Cliquez sur ce sourire pour ajouter des emojis à vos messages et les rendre plus expressifs!",
+    description:
+      "Cliquez sur ce sourire pour ajouter des emojis à vos messages et les rendre plus expressifs!",
     targetId: "emoji-btn",
     arrowPosition: "top",
     position: "top",
   },
   {
     title: "Vérifiez Votre Utilisation",
-    description: "Le compteur montre combien de messages il vous reste. Améliorez votre plan pour plus de messages.",
+    description:
+      "Le compteur montre combien de messages il vous reste. Améliorez votre plan pour plus de messages.",
     targetId: "messages-counter",
     arrowPosition: "top",
     position: "top",
@@ -150,8 +156,14 @@ export function HelpModal({ isOpen, onOpenChange }: HelpModalProps) {
         const viewportWidth = window.innerWidth;
         const viewportHeight = window.innerHeight;
 
-        tooltipX = Math.max(padding, Math.min(tooltipX, viewportWidth - tooltipWidth - padding));
-        tooltipY = Math.max(padding, Math.min(tooltipY, viewportHeight - tooltipHeight - padding));
+        tooltipX = Math.max(
+          padding,
+          Math.min(tooltipX, viewportWidth - tooltipWidth - padding),
+        );
+        tooltipY = Math.max(
+          padding,
+          Math.min(tooltipY, viewportHeight - tooltipHeight - padding),
+        );
 
         setArrowPos({ x: arrowX - 16, y: arrowY - 16 });
         setTooltipPos({ x: tooltipX, y: tooltipY });
@@ -194,7 +206,8 @@ export function HelpModal({ isOpen, onOpenChange }: HelpModalProps) {
             top: `${targetRect.top - 8}px`,
             width: `${targetRect.width + 16}px`,
             height: `${targetRect.height + 16}px`,
-            boxShadow: "0 0 30px rgba(255, 255, 255, 0.3), inset 0 0 30px rgba(255, 255, 255, 0.1)",
+            boxShadow:
+              "0 0 30px rgba(255, 255, 255, 0.3), inset 0 0 30px rgba(255, 255, 255, 0.1)",
           }}
         />
       )}

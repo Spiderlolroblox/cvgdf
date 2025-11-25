@@ -1,12 +1,19 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { signOut } from 'firebase/auth';
-import { collection, getDocs, doc, updateDoc, query, where } from 'firebase/firestore';
-import { auth, db } from '@/lib/firebase';
-import { useAuth } from '@/contexts/AuthContext';
-import { Users, Settings, LogOut, Edit2, Save, X } from 'lucide-react';
-import { toast } from 'sonner';
-import { UserData, PlanType } from '@/contexts/AuthContext';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { signOut } from "firebase/auth";
+import {
+  collection,
+  getDocs,
+  doc,
+  updateDoc,
+  query,
+  where,
+} from "firebase/firestore";
+import { auth, db } from "@/lib/firebase";
+import { useAuth } from "@/contexts/AuthContext";
+import { Users, Settings, LogOut, Edit2, Save, X } from "lucide-react";
+import { toast } from "sonner";
+import { UserData, PlanType } from "@/contexts/AuthContext";
 
 export default function Admin() {
   const { userData } = useAuth();
@@ -17,9 +24,9 @@ export default function Admin() {
   const [editData, setEditData] = useState<Partial<UserData>>({});
 
   const planLimits: Record<PlanType, number> = {
-    'Free': 10,
-    'Classic': 50,
-    'Pro': 999,
+    Free: 10,
+    Classic: 50,
+    Pro: 999,
   };
 
   useEffect(() => {
@@ -28,12 +35,12 @@ export default function Admin() {
 
   const loadUsers = async () => {
     try {
-      const usersRef = collection(db, 'users');
+      const usersRef = collection(db, "users");
       const snapshot = await getDocs(usersRef);
-      const usersList = snapshot.docs.map(doc => doc.data() as UserData);
+      const usersList = snapshot.docs.map((doc) => doc.data() as UserData);
       setUsers(usersList);
     } catch (error) {
-      toast.error('Erreur lors du chargement des utilisateurs');
+      toast.error("Erreur lors du chargement des utilisateurs");
     } finally {
       setLoading(false);
     }
@@ -48,26 +55,26 @@ export default function Admin() {
     if (!editingId) return;
 
     try {
-      const userRef = doc(db, 'users', editingId);
+      const userRef = doc(db, "users", editingId);
       await updateDoc(userRef, editData);
 
-      setUsers(users.map(u =>
-        u.uid === editingId ? { ...u, ...editData } : u
-      ));
+      setUsers(
+        users.map((u) => (u.uid === editingId ? { ...u, ...editData } : u)),
+      );
 
       setEditingId(null);
-      toast.success('Utilisateur mis à jour');
+      toast.success("Utilisateur mis à jour");
     } catch (error) {
-      toast.error('Erreur lors de la mise à jour');
+      toast.error("Erreur lors de la mise à jour");
     }
   };
 
   const handleLogout = async () => {
     try {
       await signOut(auth);
-      navigate('/login');
+      navigate("/login");
     } catch (error) {
-      toast.error('Erreur lors de la déconnexion');
+      toast.error("Erreur lors de la déconnexion");
     }
   };
 
@@ -109,7 +116,9 @@ export default function Admin() {
           <div className="p-6 bg-white/5 border border-white/10 rounded-xl">
             <div className="flex items-center gap-3 mb-2">
               <Users size={20} className="text-white/60" />
-              <span className="text-foreground/60 text-sm">Utilisateurs Total</span>
+              <span className="text-foreground/60 text-sm">
+                Utilisateurs Total
+              </span>
             </div>
             <p className="text-3xl font-bold text-white">{users.length}</p>
           </div>
@@ -120,14 +129,16 @@ export default function Admin() {
               <span className="text-foreground/60 text-sm">Plans Premium</span>
             </div>
             <p className="text-3xl font-bold text-white">
-              {users.filter(u => u.plan !== 'Free').length}
+              {users.filter((u) => u.plan !== "Free").length}
             </p>
           </div>
 
           <div className="p-6 bg-white/5 border border-white/10 rounded-xl">
             <div className="flex items-center gap-3 mb-2">
               <Users size={20} className="text-white/60" />
-              <span className="text-foreground/60 text-sm">Messages Utilisés</span>
+              <span className="text-foreground/60 text-sm">
+                Messages Utilisés
+              </span>
             </div>
             <p className="text-3xl font-bold text-white">
               {users.reduce((sum, u) => sum + u.messagesUsed, 0)}
@@ -146,24 +157,39 @@ export default function Admin() {
 
           {loading ? (
             <div className="p-8 text-center">
-              <p className="text-foreground/60">Chargement des utilisateurs...</p>
+              <p className="text-foreground/60">
+                Chargement des utilisateurs...
+              </p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="border-b border-white/10 bg-white/[0.02]">
                   <tr>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-foreground/70">Email</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-foreground/70">Plan</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-foreground/70">Messages</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-foreground/70">Admin</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-foreground/70">Actions</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-foreground/70">
+                      Email
+                    </th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-foreground/70">
+                      Plan
+                    </th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-foreground/70">
+                      Messages
+                    </th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-foreground/70">
+                      Admin
+                    </th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-foreground/70">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
-                  {users.map(user => (
+                  {users.map((user) =>
                     editingId === user.uid ? (
-                      <tr key={user.uid} className="border-b border-white/10 hover:bg-white/5">
+                      <tr
+                        key={user.uid}
+                        className="border-b border-white/10 hover:bg-white/5"
+                      >
                         <td className="px-6 py-4">
                           <span className="text-white">{user.email}</span>
                         </td>
@@ -190,7 +216,10 @@ export default function Admin() {
                             type="number"
                             value={editData.messagesUsed ?? user.messagesUsed}
                             onChange={(e) =>
-                              setEditData({ ...editData, messagesUsed: parseInt(e.target.value) })
+                              setEditData({
+                                ...editData,
+                                messagesUsed: parseInt(e.target.value),
+                              })
                             }
                             className="bg-white/10 border border-white/20 rounded px-3 py-2 text-white text-sm w-20"
                           />
@@ -200,7 +229,10 @@ export default function Admin() {
                             type="checkbox"
                             checked={editData.isAdmin ?? user.isAdmin}
                             onChange={(e) =>
-                              setEditData({ ...editData, isAdmin: e.target.checked })
+                              setEditData({
+                                ...editData,
+                                isAdmin: e.target.checked,
+                              })
                             }
                             className="w-4 h-4"
                           />
@@ -223,12 +255,17 @@ export default function Admin() {
                         </td>
                       </tr>
                     ) : (
-                      <tr key={user.uid} className="border-b border-white/10 hover:bg-white/5 transition-colors">
+                      <tr
+                        key={user.uid}
+                        className="border-b border-white/10 hover:bg-white/5 transition-colors"
+                      >
                         <td className="px-6 py-4">
                           <span className="text-white">{user.email}</span>
                         </td>
                         <td className="px-6 py-4">
-                          <span className="text-foreground/70">{user.plan}</span>
+                          <span className="text-foreground/70">
+                            {user.plan}
+                          </span>
                         </td>
                         <td className="px-6 py-4">
                           <span className="text-foreground/70">
@@ -236,8 +273,14 @@ export default function Admin() {
                           </span>
                         </td>
                         <td className="px-6 py-4">
-                          <span className={user.isAdmin ? 'text-white font-semibold' : 'text-foreground/70'}>
-                            {user.isAdmin ? 'Oui' : 'Non'}
+                          <span
+                            className={
+                              user.isAdmin
+                                ? "text-white font-semibold"
+                                : "text-foreground/70"
+                            }
+                          >
+                            {user.isAdmin ? "Oui" : "Non"}
                           </span>
                         </td>
                         <td className="px-6 py-4">
@@ -249,8 +292,8 @@ export default function Admin() {
                           </button>
                         </td>
                       </tr>
-                    )
-                  ))}
+                    ),
+                  )}
                 </tbody>
               </table>
             </div>

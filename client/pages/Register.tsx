@@ -1,39 +1,51 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
-import { auth, db } from '@/lib/firebase';
-import { PlanType, UserData } from '@/contexts/AuthContext';
-import { Mail, Lock, UserPlus, Check } from 'lucide-react';
-import { toast } from 'sonner';
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
+import { auth, db } from "@/lib/firebase";
+import { PlanType, UserData } from "@/contexts/AuthContext";
+import { Mail, Lock, UserPlus, Check } from "lucide-react";
+import { toast } from "sonner";
 
 const PLANS = [
   {
-    name: 'Free',
-    price: '0€',
+    name: "Free",
+    price: "0€",
     messages: 10,
-    features: ['10 messages/mois', 'Conversations illimitées', 'Support basique'],
+    features: [
+      "10 messages/mois",
+      "Conversations illimitées",
+      "Support basique",
+    ],
   },
   {
-    name: 'Classic',
-    price: '9€',
+    name: "Classic",
+    price: "9€",
     messages: 50,
-    features: ['50 messages/mois', 'Conversations illimitées', 'Support prioritaire'],
+    features: [
+      "50 messages/mois",
+      "Conversations illimitées",
+      "Support prioritaire",
+    ],
     popular: true,
   },
   {
-    name: 'Pro',
-    price: '19€',
+    name: "Pro",
+    price: "19€",
     messages: 999,
-    features: ['Messages illimités', 'Conversations illimitées', 'Support 24/7'],
+    features: [
+      "Messages illimités",
+      "Conversations illimitées",
+      "Support 24/7",
+    ],
   },
 ];
 
 export default function Register() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [selectedPlan, setSelectedPlan] = useState<PlanType>('Free');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [selectedPlan, setSelectedPlan] = useState<PlanType>("Free");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -41,26 +53,30 @@ export default function Register() {
     e.preventDefault();
 
     if (password !== confirmPassword) {
-      toast.error('Les mots de passe ne correspondent pas');
+      toast.error("Les mots de passe ne correspondent pas");
       return;
     }
 
     setLoading(true);
 
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password,
+      );
       const user = userCredential.user;
 
       const planLimits: Record<PlanType, number> = {
-        'Free': 10,
-        'Classic': 50,
-        'Pro': 999,
+        Free: 10,
+        Classic: 50,
+        Pro: 999,
       };
 
       const userData: UserData = {
         uid: user.uid,
-        email: user.email || '',
-        displayName: email.split('@')[0],
+        email: user.email || "",
+        displayName: email.split("@")[0],
         plan: selectedPlan,
         messagesUsed: 0,
         messagesLimit: planLimits[selectedPlan],
@@ -68,12 +84,13 @@ export default function Register() {
         isAdmin: false,
       };
 
-      await setDoc(doc(db, 'users', user.uid), userData);
+      await setDoc(doc(db, "users", user.uid), userData);
 
-      toast.success('Compte créé avec succès!');
-      navigate('/');
+      toast.success("Compte créé avec succès!");
+      navigate("/");
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Erreur d\'inscription';
+      const message =
+        error instanceof Error ? error.message : "Erreur d'inscription";
       toast.error(message);
     } finally {
       setLoading(false);
@@ -95,7 +112,9 @@ export default function Register() {
               <UserPlus size={24} className="text-white" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">Créez votre compte</h1>
+          <h1 className="text-3xl font-bold text-white mb-2">
+            Créez votre compte
+          </h1>
           <p className="text-foreground/60">Choisissez un plan et commencez</p>
         </div>
 
@@ -107,9 +126,9 @@ export default function Register() {
               onClick={() => setSelectedPlan(plan.name as PlanType)}
               className={`relative p-6 rounded-2xl border-2 cursor-pointer transition-all ${
                 selectedPlan === plan.name
-                  ? 'border-white bg-white/10'
-                  : 'border-white/20 hover:border-white/40'
-              } ${plan.popular ? 'lg:scale-105 lg:z-10' : ''}`}
+                  ? "border-white bg-white/10"
+                  : "border-white/20 hover:border-white/40"
+              } ${plan.popular ? "lg:scale-105 lg:z-10" : ""}`}
             >
               {plan.popular && (
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white/20 border border-white/40 px-4 py-1 rounded-full text-xs font-semibold text-white">
@@ -119,14 +138,21 @@ export default function Register() {
 
               <h3 className="text-xl font-bold text-white mb-2">{plan.name}</h3>
               <div className="mb-4">
-                <span className="text-3xl font-bold text-white">{plan.price}</span>
+                <span className="text-3xl font-bold text-white">
+                  {plan.price}
+                </span>
                 <span className="text-foreground/60 text-sm">/mois</span>
               </div>
-              <div className="text-white font-semibold mb-4">{plan.messages} messages</div>
+              <div className="text-white font-semibold mb-4">
+                {plan.messages} messages
+              </div>
 
               <ul className="space-y-2 mb-6">
                 {plan.features.map((feature) => (
-                  <li key={feature} className="flex items-center gap-2 text-foreground/80 text-sm">
+                  <li
+                    key={feature}
+                    className="flex items-center gap-2 text-foreground/80 text-sm"
+                  >
                     <Check size={16} className="text-white/60" />
                     {feature}
                   </li>
@@ -151,7 +177,10 @@ export default function Register() {
                 Email
               </label>
               <div className="relative">
-                <Mail size={18} className="absolute left-3 top-3 text-foreground/40" />
+                <Mail
+                  size={18}
+                  className="absolute left-3 top-3 text-foreground/40"
+                />
                 <input
                   type="email"
                   value={email}
@@ -169,7 +198,10 @@ export default function Register() {
                 Mot de passe
               </label>
               <div className="relative">
-                <Lock size={18} className="absolute left-3 top-3 text-foreground/40" />
+                <Lock
+                  size={18}
+                  className="absolute left-3 top-3 text-foreground/40"
+                />
                 <input
                   type="password"
                   value={password}
@@ -187,7 +219,10 @@ export default function Register() {
                 Confirmer le mot de passe
               </label>
               <div className="relative">
-                <Lock size={18} className="absolute left-3 top-3 text-foreground/40" />
+                <Lock
+                  size={18}
+                  className="absolute left-3 top-3 text-foreground/40"
+                />
                 <input
                   type="password"
                   value={confirmPassword}
@@ -205,7 +240,7 @@ export default function Register() {
               disabled={loading}
               className="w-full bg-white/20 hover:bg-white/30 disabled:opacity-50 text-white font-semibold py-3 rounded-lg transition-all border border-white/40 hover:border-white/60 mt-6"
             >
-              {loading ? 'Inscription en cours...' : 'Créer un compte'}
+              {loading ? "Inscription en cours..." : "Créer un compte"}
             </button>
           </form>
 

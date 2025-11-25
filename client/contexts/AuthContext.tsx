@@ -1,9 +1,9 @@
-import { createContext, useContext, useEffect, useState } from 'react';
-import { User, onAuthStateChanged } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
-import { auth, db } from '@/lib/firebase';
+import { createContext, useContext, useEffect, useState } from "react";
+import { User, onAuthStateChanged } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
+import { auth, db } from "@/lib/firebase";
 
-export type PlanType = 'Free' | 'Classic' | 'Pro';
+export type PlanType = "Free" | "Classic" | "Pro";
 
 export interface UserData {
   uid: string;
@@ -43,18 +43,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         if (authUser) {
           setUser(authUser);
-          const userDocRef = doc(db, 'users', authUser.uid);
+          const userDocRef = doc(db, "users", authUser.uid);
           const userDocSnap = await getDoc(userDocRef);
-          
+
           if (userDocSnap.exists()) {
             setUserData(userDocSnap.data() as UserData);
           } else {
             // Initialize new user with Free plan
             const newUserData: UserData = {
               uid: authUser.uid,
-              email: authUser.email || '',
-              displayName: authUser.displayName || 'Utilisateur',
-              plan: 'Free',
+              email: authUser.email || "",
+              displayName: authUser.displayName || "Utilisateur",
+              plan: "Free",
               messagesUsed: 0,
               messagesLimit: 10,
               createdAt: Date.now(),
@@ -67,7 +67,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setUserData(null);
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Auth error');
+        setError(err instanceof Error ? err.message : "Auth error");
       } finally {
         setLoading(false);
       }
@@ -77,13 +77,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{
-      user,
-      userData,
-      loading,
-      error,
-      isAdmin: userData?.isAdmin || false,
-    }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        userData,
+        loading,
+        error,
+        isAdmin: userData?.isAdmin || false,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -92,7 +94,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within AuthProvider');
+    throw new Error("useAuth must be used within AuthProvider");
   }
   return context;
 }

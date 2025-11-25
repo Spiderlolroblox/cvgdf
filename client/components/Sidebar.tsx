@@ -1,4 +1,11 @@
-import { Plus, LogOut, MoreVertical, Trash2, Edit2, Loader2 } from "lucide-react";
+import {
+  Plus,
+  LogOut,
+  MoreVertical,
+  Trash2,
+  Edit2,
+  Loader2,
+} from "lucide-react";
 import { useState, useEffect } from "react";
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
@@ -73,7 +80,7 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
   const handleSyncMessages = async () => {
     setIsSyncing(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       toast.success("Messages synchronisés");
     } catch (error) {
       toast.error("Erreur de synchronisation");
@@ -290,8 +297,18 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
               {isSyncing ? (
                 <Loader2 size={14} className="animate-spin text-white/60" />
               ) : (
-                <svg className="w-4 h-4 text-white/60 hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                <svg
+                  className="w-4 h-4 text-white/60 hover:text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                  />
                 </svg>
               )}
             </button>

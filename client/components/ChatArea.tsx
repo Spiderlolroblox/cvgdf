@@ -33,7 +33,9 @@ export function ChatArea() {
   const [emojiOpen, setEmojiOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
-  const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
+  const [currentConversationId, setCurrentConversationId] = useState<
+    string | null
+  >(null);
 
   useEffect(() => {
     const initConversation = async () => {
@@ -44,7 +46,7 @@ export function ChatArea() {
         if (convs.length === 0) {
           const newConv = await MessagesService.createConversation(
             user.uid,
-            "Nouvelle conversation"
+            "Nouvelle conversation",
           );
           setCurrentConversationId(newConv.id);
         } else {
@@ -75,13 +77,13 @@ export function ChatArea() {
       await MessagesService.addMessage(
         currentConversationId,
         user.uid,
-        message
+        message,
       );
 
       // Update message count
       await MessagesService.updateUserMessageCount(
         user.uid,
-        userData.messagesUsed + 1
+        userData.messagesUsed + 1,
       );
 
       setMessage("");
@@ -180,7 +182,11 @@ export function ChatArea() {
             className="p-2 text-foreground hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed transition-colors hover:bg-foreground/10 rounded-lg flex items-center justify-center hover:scale-110 transform transition-transform"
             aria-label="Envoyer le message"
           >
-            {loading ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
+            {loading ? (
+              <Loader2 size={18} className="animate-spin" />
+            ) : (
+              <Send size={18} />
+            )}
           </button>
         </div>
       </div>

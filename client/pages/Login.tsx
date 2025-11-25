@@ -1,13 +1,13 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
-import { Mail, Lock } from 'lucide-react';
-import { toast } from 'sonner';
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+import { Mail, Lock } from "lucide-react";
+import { toast } from "sonner";
 
 export default function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -17,10 +17,11 @@ export default function Login() {
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      toast.success('Connecté avec succès!');
-      navigate('/');
+      toast.success("Connecté avec succès!");
+      navigate("/");
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Erreur de connexion';
+      const message =
+        error instanceof Error ? error.message : "Erreur de connexion";
       toast.error(message);
     } finally {
       setLoading(false);
@@ -50,7 +51,10 @@ export default function Login() {
               Email
             </label>
             <div className="relative">
-              <Mail size={18} className="absolute left-3 top-3 text-foreground/40" />
+              <Mail
+                size={18}
+                className="absolute left-3 top-3 text-foreground/40"
+              />
               <input
                 type="email"
                 value={email}
@@ -68,7 +72,10 @@ export default function Login() {
               Mot de passe
             </label>
             <div className="relative">
-              <Lock size={18} className="absolute left-3 top-3 text-foreground/40" />
+              <Lock
+                size={18}
+                className="absolute left-3 top-3 text-foreground/40"
+              />
               <input
                 type="password"
                 value={password}
@@ -86,7 +93,7 @@ export default function Login() {
             disabled={loading}
             className="w-full bg-white/20 hover:bg-white/30 disabled:opacity-50 text-white font-semibold py-3 rounded-lg transition-all border border-white/40 hover:border-white/60 mt-6"
           >
-            {loading ? 'Connexion en cours...' : 'Se Connecter'}
+            {loading ? "Connexion en cours..." : "Se Connecter"}
           </button>
         </form>
 
@@ -113,7 +120,8 @@ export default function Login() {
         {/* Demo Info */}
         <div className="mt-8 p-4 bg-white/5 border border-white/10 rounded-lg">
           <p className="text-xs text-foreground/50">
-            <span className="font-semibold text-white">Demo:</span> Créez un nouveau compte pour commencer
+            <span className="font-semibold text-white">Demo:</span> Créez un
+            nouveau compte pour commencer
           </p>
         </div>
       </div>
