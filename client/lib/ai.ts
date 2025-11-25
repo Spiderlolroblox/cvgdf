@@ -62,23 +62,24 @@ export class AIService {
         }),
       });
 
-      let data: any;
-      const contentType = response.headers.get("content-type");
-
+      // Try to parse response body as text first, then JSON
+      let responseText: string;
       try {
-        if (contentType && contentType.includes("application/json")) {
-          data = await response.json();
-        } else {
-          const text = await response.text();
-          throw new Error(
-            `Invalid content type: ${contentType}. Response: ${text.substring(0, 200)}`,
-          );
-        }
+        responseText = await response.text();
+      } catch (error) {
+        console.error("Failed to read response:", error);
+        throw new Error("Erreur serveur: impossible de lire la réponse");
+      }
+
+      let data: any;
+      try {
+        data = JSON.parse(responseText);
       } catch (parseError) {
-        if (parseError instanceof Error && parseError.message.includes("body stream already read")) {
-          throw new Error("Erreur serveur: réponse invalide (stream consumed)");
-        }
-        throw parseError;
+        console.error("Failed to parse response JSON:", parseError);
+        console.error("Response was:", responseText.substring(0, 500));
+        throw new Error(
+          `Erreur serveur: réponse invalide (${responseText.substring(0, 50)}...)`,
+        );
       }
 
       if (!response.ok) {
