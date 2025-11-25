@@ -9,6 +9,7 @@ import { BrowserRouter, Routes, Route, Navigate, useNavigate } from "react-route
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
+import { toast } from "sonner";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
