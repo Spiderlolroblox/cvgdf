@@ -14,8 +14,7 @@ const DEFAULT_CONFIG: AIConfig = {
   systemPrompt: "Tu es un assistant utile et amical. Réponds en français.",
   temperature: 0.7,
   maxTokens: 2048,
-  apiKey:
-    "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",
+  apiKey: "", // API key is now handled by backend
 };
 
 export class AIService {
