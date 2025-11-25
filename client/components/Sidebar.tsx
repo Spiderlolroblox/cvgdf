@@ -174,7 +174,7 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
             </Popover>
           </div>
           <p className="text-xs text-foreground/50 truncate">
-            utilisateur@example.com
+            {loading ? "..." : userData?.email}
           </p>
         </div>
 
