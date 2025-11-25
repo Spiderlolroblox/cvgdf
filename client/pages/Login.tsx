@@ -52,8 +52,10 @@ export default function Login() {
     } catch (error) {
       let message = "Erreur de connexion";
 
-      if (error && typeof error === "object" && "code" in error) {
-        const firebaseError = error as { code: string; message?: string };
+      if (error && typeof error === "object") {
+        const firebaseError = error as { code?: string; message?: string };
+
+        // Map Firebase error codes to user-friendly messages
         const errorMap: Record<string, string> = {
           "auth/user-not-found": "Cet email n'existe pas. Créez d'abord un compte.",
           "auth/wrong-password": "Mot de passe incorrect",
@@ -62,7 +64,22 @@ export default function Login() {
           "auth/network-request-failed": "Erreur de connexion réseau. Vérifiez votre connexion internet.",
         };
 
-        message = errorMap[firebaseError.code] || firebaseError.message || message;
+        if (firebaseError.code) {
+          message = errorMap[firebaseError.code] || firebaseError.code;
+        } else if (firebaseError.message) {
+          // Handle cases where Firebase returns a message instead of code
+          if (firebaseError.message.includes("USER_NOT_FOUND")) {
+            message = "Cet email n'existe pas. Créez d'abord un compte.";
+          } else if (firebaseError.message.includes("INVALID_PASSWORD")) {
+            message = "Mot de passe incorrect";
+          } else if (firebaseError.message.includes("INVALID_EMAIL")) {
+            message = "Email invalide";
+          } else if (firebaseError.message.includes("USER_DISABLED")) {
+            message = "Ce compte a été désactivé";
+          } else {
+            message = firebaseError.message;
+          }
+        }
       } else if (error instanceof Error) {
         message = error.message;
       }
