@@ -134,7 +134,10 @@ export default function Admin() {
     try {
       const usersRef = collection(db, "users");
       const snapshot = await getDocs(usersRef);
-      const usersList = snapshot.docs.map((doc) => doc.data() as UserData);
+      const usersList = snapshot.docs.map((doc) => ({
+        ...doc.data(),
+        uid: doc.id,
+      } as UserData));
       setUsers(usersList);
     } catch (error) {
       toast.error("Erreur lors du chargement des utilisateurs");
