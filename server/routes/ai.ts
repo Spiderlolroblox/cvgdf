@@ -1,6 +1,16 @@
 import { RequestHandler } from "express";
-import { db } from "@/lib/firebase";
-import { doc, getDoc } from "firebase/firestore";
+
+const PROJECT_ID = "keysystem-d0b86-8df89";
+const FIRESTORE_API_KEY = "AIzaSyD7KlxN05OoSCGHwjXhiiYyKF5bOXianLY";
+
+function extractValue(field: any): any {
+  if (!field) return null;
+  if (field.stringValue !== undefined) return field.stringValue;
+  if (field.integerValue !== undefined) return parseInt(field.integerValue);
+  if (field.booleanValue !== undefined) return field.booleanValue;
+  if (field.doubleValue !== undefined) return field.doubleValue;
+  return null;
+}
 
 interface AIRequest {
   userMessage: string;
@@ -25,11 +35,20 @@ export const handleAIChat: RequestHandler = async (req, res) => {
   let apiKey = process.env.OPENROUTER_API_KEY;
 
   try {
-    const configRef = doc(db, "settings", "ai");
-    const configSnap = await getDoc(configRef);
+    const firestoreResponse = await fetch(
+      `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents/settings/ai?key=${FIRESTORE_API_KEY}`,
+      {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      },
+    );
 
-    if (configSnap.exists() && configSnap.data().apiKey) {
-      apiKey = configSnap.data().apiKey;
+    if (firestoreResponse.ok) {
+      const firestoreData = await firestoreResponse.json();
+      const apiKeyField = firestoreData.fields?.apiKey;
+      if (apiKeyField) {
+        apiKey = extractValue(apiKeyField);
+      }
     }
   } catch (error) {
     console.error("Failed to fetch API key from Firebase, using env variable:", error);
