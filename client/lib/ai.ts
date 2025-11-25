@@ -47,7 +47,6 @@ export class AIService {
     const config = await this.getConfig();
 
     try {
-      // Call backend endpoint instead of directly calling OpenRouter
       const response = await fetch("/api/ai/chat", {
         method: "POST",
         headers: {
@@ -63,22 +62,25 @@ export class AIService {
         }),
       });
 
-      // Read body once and parse as JSON
       let data: any;
       const contentType = response.headers.get("content-type");
 
-      if (contentType && contentType.includes("application/json")) {
-        try {
+      try {
+        if (contentType && contentType.includes("application/json")) {
           data = await response.json();
-        } catch (parseError) {
-          console.error("Failed to parse response:", parseError);
-          throw new Error("Erreur serveur: réponse invalide");
+        } else {
+          const text = await response.text();
+          throw new Error(
+            `Invalid content type: ${contentType}. Response: ${text.substring(0, 200)}`,
+          );
         }
-      } else {
-        throw new Error(`Unexpected content type: ${contentType}`);
+      } catch (parseError) {
+        if (parseError instanceof Error && parseError.message.includes("body stream already read")) {
+          throw new Error("Erreur serveur: réponse invalide (stream consumed)");
+        }
+        throw parseError;
       }
 
-      // Check status after reading body
       if (!response.ok) {
         const errorMessage = data?.error || `API error: ${response.status}`;
         throw new Error(errorMessage);
