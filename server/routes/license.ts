@@ -114,7 +114,8 @@ export async function handleActivateLicense(req: Request, res: Response) {
 
     console.log("License activated:", { plan, messageLimit, licenseId });
 
-    // Update user data in Firestore
+    // Update user data in Firestore with license info
+    const now = Date.now();
     const userUpdateQuery = {
       writes: [
         {
@@ -123,8 +124,10 @@ export async function handleActivateLicense(req: Request, res: Response) {
             fields: {
               messagesUsed: { integerValue: "0" },
               messagesLimit: { integerValue: messageLimit.toString() },
-              plan: { stringValue: planName },
+              plan: { stringValue: plan },
               licenseKey: { stringValue: trimmedKey },
+              licenseExpiresAt: { integerValue: expiresAt.toString() },
+              lastMessageReset: { integerValue: now.toString() },
             },
           },
         },
@@ -144,14 +147,13 @@ export async function handleActivateLicense(req: Request, res: Response) {
       console.error("Error updating user data:", await userUpdateResponse.text());
     }
 
-    // Deactivate the license key
-    const deactivateQuery = {
+    // Update the license key with usage info (but keep it active for daily resets)
+    const licenseSyncQuery = {
       writes: [
         {
           update: {
             name: `projects/${PROJECT_ID}/databases/(default)/documents/licenses/${licenseId}`,
             fields: {
-              isActive: { booleanValue: false },
               usedBy: { stringValue: userId },
               usedAt: { timestampValue: new Date().toISOString() },
             },
@@ -160,25 +162,26 @@ export async function handleActivateLicense(req: Request, res: Response) {
       ],
     };
 
-    const deactivateResponse = await fetch(
+    const licenseSyncResponse = await fetch(
       `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents:batchWrite?key=${API_KEY}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(deactivateQuery),
+        body: JSON.stringify(licenseSyncQuery),
       }
     );
 
-    if (!deactivateResponse.ok) {
-      console.error("Error deactivating license:", await deactivateResponse.text());
+    if (!licenseSyncResponse.ok) {
+      console.error("Error syncing license:", await licenseSyncResponse.text());
     }
 
     return res.status(200).json({
       message: "Licence activée avec succès",
       licenseId,
-      plan: planName,
+      plan,
       messageLimit,
       messagesUsed: 0,
+      expiresAt,
     });
   } catch (error) {
     console.error("Error activating license:", error);
