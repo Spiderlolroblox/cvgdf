@@ -75,11 +75,22 @@ export const handleAIChat: RequestHandler = async (req, res) => {
       },
     );
 
+    let responseText: string;
+    try {
+      responseText = await response.text();
+    } catch (readError) {
+      console.error("Failed to read OpenRouter response:", readError);
+      return res.status(500).json({
+        error: "Failed to read response from AI service",
+      });
+    }
+
     let data: any;
     try {
-      data = await response.json();
+      data = JSON.parse(responseText);
     } catch (parseError) {
       console.error("Failed to parse OpenRouter response:", parseError);
+      console.error("Response text:", responseText.substring(0, 500));
       return res.status(500).json({
         error: "Invalid response from AI service",
       });
